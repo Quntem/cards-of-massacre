@@ -1,11 +1,8 @@
-[gd_scene load_steps=8 format=3 uid="uid://dm5jrxsnleg2q"]
+[gd_scene load_steps=7 format=3 uid="uid://cr6rssaro7pkg"]
 
-[ext_resource type="Texture2D" uid="uid://b0nomjnw5cl0h" path="res://assets/images/ammo-card-1.png" id="1_ldrws"]
-[ext_resource type="Script" uid="uid://bto6nrjw86mm7" path="res://assets/scripts/card.gd" id="1_sjxra"]
-[ext_resource type="Texture2D" uid="uid://4gyifrytg8be" path="res://assets/images/deck.png" id="2_fhjc8"]
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_mr7gh"]
-size = Vector2(60, 90)
+[ext_resource type="Script" uid="uid://dnrgff7sqtp1x" path="res://assets/scripts/enemy_card.gd" id="1_w8fmt"]
+[ext_resource type="Texture2D" uid="uid://4gyifrytg8be" path="res://assets/images/deck.png" id="2_c5fc4"]
+[ext_resource type="Texture2D" uid="uid://b0nomjnw5cl0h" path="res://assets/images/ammo-card-1.png" id="3_p5and"]
 
 [sub_resource type="Animation" id="Animation_fhjc8"]
 length = 0.001
@@ -118,27 +115,19 @@ _data = {
 }
 
 [node name="Card" type="Node2D"]
-position = Vector2(150, 955)
-script = ExtResource("1_sjxra")
+position = Vector2(1770, 125)
+script = ExtResource("1_w8fmt")
 
 [node name="CardBackImage" type="Sprite2D" parent="."]
 texture_filter = 1
-texture = ExtResource("2_fhjc8")
+texture = ExtResource("2_c5fc4")
 
 [node name="CardImage" type="Sprite2D" parent="."]
 z_index = -1
 texture_filter = 1
-texture = ExtResource("1_ldrws")
-
-[node name="Area2D" type="Area2D" parent="."]
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
-shape = SubResource("RectangleShape2D_mr7gh")
+texture = ExtResource("3_p5and")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
 &"": SubResource("AnimationLibrary_3x3vh")
 }
-
-[connection signal="mouse_entered" from="Area2D" to="." method="_on_area_2d_mouse_entered"]
-[connection signal="mouse_exited" from="Area2D" to="." method="_on_area_2d_mouse_exited"]
