@@ -17,6 +17,8 @@ func draw_card():
 	var card_drawn_name = opponent_deck[0]
 	opponent_deck.erase(card_drawn_name)
 	
+	$"../AudioManager/cardSwipeSFX".play()
+	
 	if opponent_deck.size() == 0:
 		$Sprite2D.visible = false
 	

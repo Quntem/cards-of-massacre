@@ -1,7 +1,9 @@
-[gd_scene load_steps=12 format=3 uid="uid://dso701o2spc46"]
+[gd_scene load_steps=22 format=3 uid="uid://dso701o2spc46"]
 
 [ext_resource type="Script" uid="uid://c5r7gqo6m0slu" path="res://assets/scripts/card_manager.gd" id="1_kpi06"]
+[ext_resource type="Texture2D" uid="uid://dg0tqbd48ud5c" path="res://assets/images/health-bar-nofill-happy.png" id="1_t7a27"]
 [ext_resource type="PackedScene" uid="uid://du7fna6m7tgsf" path="res://assets/scenes/subscene/card_slot.tscn" id="3_dfgan"]
+[ext_resource type="Texture2D" uid="uid://bl11mrc5wfgw8" path="res://assets/images/health-bar-filled.png" id="3_ftd1h"]
 [ext_resource type="Script" uid="uid://dqxd887bajkgx" path="res://assets/scripts/player_hand.gd" id="3_sfrgt"]
 [ext_resource type="PackedScene" uid="uid://b42b6ofsok2jp" path="res://assets/scenes/subscene/enemy_card_slot.tscn" id="3_xplbd"]
 [ext_resource type="Script" uid="uid://cj2hst12et1aj" path="res://assets/scripts/deck.gd" id="4_etxf0"]
@@ -10,11 +12,52 @@
 [ext_resource type="Script" uid="uid://04sahya4cijv" path="res://assets/scripts/input_manager.gd" id="6_vesw4"]
 [ext_resource type="Script" uid="uid://c64kw2nubckuy" path="res://assets/scripts/battle_manager.gd" id="8_6rsl6"]
 [ext_resource type="Script" uid="uid://c8oejgbn6tdtr" path="res://assets/scripts/enemy_deck.gd" id="8_48cn3"]
+[ext_resource type="AudioStream" uid="uid://c8owl7tvsfgca" path="res://assets/audio/sfx/card-swipe.wav" id="11_ytb86"]
+[ext_resource type="AudioStream" uid="uid://bjvx76iggyci6" path="res://assets/audio/sfx/shotgun-fire.wav" id="12_rin3v"]
+[ext_resource type="Shader" uid="uid://dmscx2lqifghv" path="res://assets/shaders/background.gdshader" id="12_ua5jh"]
+[ext_resource type="AudioStream" uid="uid://grkl352hdiyu" path="res://assets/audio/sfx/card-place.wav" id="13_ahyqc"]
+[ext_resource type="AudioStream" uid="uid://cd47bs2r5wq4e" path="res://assets/audio/sfx/mid-warning.wav" id="15_ftd1h"]
+[ext_resource type="AudioStream" uid="uid://de3cfdsvftr5f" path="res://assets/audio/sfx/crit-warning.wav" id="16_xqcey"]
+
+[sub_resource type="GDScript" id="GDScript_t7a27"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_etxf0"]
 size = Vector2(60, 90)
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ytb86"]
+shader = ExtResource("12_ua5jh")
+shader_parameter/color_one = Color(0.187176, 0.187176, 0.187176, 1)
+shader_parameter/color_two = Color(0.190762, 0.190762, 0.190762, 1)
+shader_parameter/angle = 45.0
+shader_parameter/line_count = 320.0
+shader_parameter/speed = 3.0
+shader_parameter/blur = 0.0
+
 [node name="Main" type="Node"]
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(960, 540)
+script = SubResource("GDScript_t7a27")
+
+[node name="HealthBar" type="TextureProgressBar" parent="."]
+texture_filter = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -242.0
+offset_top = -242.0
+offset_right = -194.0
+offset_bottom = -194.0
+grow_horizontal = 0
+grow_vertical = 0
+scale = Vector2(4, 4)
+max_value = 800.0
+value = 800.0
+fill_mode = 3
+texture_under = ExtResource("1_t7a27")
+texture_progress = ExtResource("3_ftd1h")
 
 [node name="CardManager" type="Node2D" parent="."]
 script = ExtResource("1_kpi06")
@@ -26,7 +69,7 @@ position = Vector2(960, 750)
 scale = Vector2(1.5, 1.5)
 
 [node name="EnemyCardSlot" parent="CardSlots" instance=ExtResource("3_xplbd")]
-position = Vector2(960, 320)
+position = Vector2(960, 205)
 scale = Vector2(1.5, 1.5)
 
 [node name="PlayerHand" type="Node2D" parent="."]
@@ -65,16 +108,79 @@ texture = ExtResource("4_sfrgt")
 [node name="InputManager" type="Node2D" parent="."]
 script = ExtResource("6_vesw4")
 
+[node name="AudioManager" type="Node" parent="."]
+
+[node name="cardSwipeSFX" type="AudioStreamPlayer" parent="AudioManager"]
+stream = ExtResource("11_ytb86")
+
+[node name="shotgunFireSFX" type="AudioStreamPlayer" parent="AudioManager"]
+stream = ExtResource("12_rin3v")
+
+[node name="cardPlaceSFX" type="AudioStreamPlayer" parent="AudioManager"]
+stream = ExtResource("13_ahyqc")
+
+[node name="midWarningSFX" type="AudioStreamPlayer" parent="AudioManager"]
+stream = ExtResource("15_ftd1h")
+
+[node name="critWarningSFX" type="AudioStreamPlayer" parent="AudioManager"]
+stream = ExtResource("16_xqcey")
+
 [node name="EndTurnButton" type="Button" parent="."]
-offset_left = 300.0
-offset_top = 570.0
-offset_right = 378.0
-offset_bottom = 601.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -39.0
+offset_top = -94.0
+offset_right = 39.0
+offset_bottom = -63.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
 text = "End Turn"
 
 [node name="BattleManager" type="Node" parent="."]
 script = ExtResource("8_6rsl6")
 
 [node name="BattleTimer" type="Timer" parent="."]
+
+[node name="PlayerHealth" type="RichTextLabel" parent="."]
+texture_filter = 1
+offset_left = 14.0
+offset_top = 14.0
+offset_right = 330.0
+offset_bottom = 83.0
+theme_override_font_sizes/normal_font_size = 50
+text = "800"
+fit_content = true
+
+[node name="EnemyHealth" type="RichTextLabel" parent="."]
+texture_filter = 1
+offset_left = 14.0
+offset_top = 83.0
+offset_right = 330.0
+offset_bottom = 118.0
+theme_override_colors/default_color = Color(1, 0, 0, 1)
+theme_override_font_sizes/normal_font_size = 25
+text = "800"
+fit_content = true
+
+[node name="Background" type="ColorRect" parent="."]
+z_index = -3
+material = SubResource("ShaderMaterial_ytb86")
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -960.0
+offset_top = -540.0
+offset_right = 960.0
+offset_bottom = 540.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+metadata/_edit_lock_ = true
 
 [connection signal="pressed" from="EndTurnButton" to="BattleManager" method="_on_end_turn_button_pressed"]

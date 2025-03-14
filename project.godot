@@ -11,9 +11,11 @@ config_version=5
 [application]
 
 config/name="Cards Of Massacre"
+config/description="Shoot someone to death or obtain 9 bullets and massacre your friends (or the bot, who's 100% volunteered) with cute, little cards. What would possibly go wrong?"
+config/version="v0"
 run/main_scene="uid://dso701o2spc46"
 config/features=PackedStringArray("4.4", "Forward Plus")
-config/icon="res://icon.svg"
+config/icon="uid://cko0y6jt3nyy4"
 
 [display]
 
@@ -21,3 +23,14 @@ window/size/viewport_width=1920
 window/size/viewport_height=1080
 window/size/mode=3
 window/vsync/vsync_mode=0
+
+[rendering]
+
+environment/defaults/default_clear_color=Color(0, 0, 0, 1)
+
+[shader_globals]
+
+mouse_screen_pos={
+"type": "vec2",
+"value": Vector2(0, 0)
+}

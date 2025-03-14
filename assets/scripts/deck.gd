@@ -12,8 +12,9 @@ func _ready() -> void:
 	player_deck.shuffle()
 	card_database_reference = preload("res://assets/scripts/card_database.gd")
 	for i in range(STARTER_HAND_SIZE):
-		draw_card()
 		drawn_card_this_turn = false
+		draw_card()
+		await get_tree().create_timer(.2).timeout
 	drawn_card_this_turn = true
 
 func draw_card():
@@ -25,6 +26,8 @@ func draw_card():
 	var card_drawn_name = player_deck[0]
 	player_deck.erase(card_drawn_name)
 	
+	$"../AudioManager/cardSwipeSFX".play()
+	
 	if player_deck.size() == 0:
 		$Area2D/CollisionShape2D.disabled = true
 		$Sprite2D.visible = false
@@ -34,6 +37,7 @@ func draw_card():
 	var card_image_path = str("res://assets/images/" + card_drawn_name + ".png")
 	new_card.get_node("CardImage").texture = load(card_image_path)
 	new_card.card_type = card_database_reference.CARDS[card_drawn_name][3]
+	new_card.damage = card_database_reference.CARDS[card_drawn_name][0]
 	
 	$"../CardManager".add_child(new_card)
 	new_card.name = "Card"
