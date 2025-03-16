@@ -14,13 +14,14 @@ var player_weapon_card_this_turn
 func _ready() -> void:
 	screen_size = get_viewport_rect().size
 	player_hand_reference = $"../PlayerHand"
-	$"../InputManager".connect("left_mouse_button_released", on_left_click_released)
+	$"../InputManager".connect("left_mouse_button_released", Callable(self, "on_left_click_released"))
 	center_cards_in_hand()
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if card_being_dragged:
 		var mouse_pos = get_global_mouse_position()
 		card_being_dragged.position = Vector2(clamp(mouse_pos.x, 0, screen_size.x), clamp(mouse_pos.y, 0, screen_size.y))
+	update_card_tilts()
 
 func start_drag(card):
 	card_being_dragged = card
@@ -44,8 +45,8 @@ func finish_drag():
 	center_cards_in_hand()
 
 func connect_card_signals(card):
-	card.connect("hovered", on_hovered_over_card)
-	card.connect("hovered_off", on_hovered_off_card)
+	card.connect("hovered", Callable(self, "on_hovered_over_card"))
+	card.connect("hovered_off", Callable(self, "on_hovered_off_card"))
 
 func on_left_click_released():
 	if card_being_dragged:
@@ -120,3 +121,10 @@ func center_cards_in_hand():
 		var card = hand[i]
 		card.position.x = start_x + i * (card_width + 20)
 		card.position.y = screen_size.y - 200  # Adjust Y position as needed
+
+func update_card_tilts():
+	var mouse_pos = get_global_mouse_position()
+	var hand = player_hand_reference.get_children()
+	for card in hand:
+		var direction = (mouse_pos - card.position).normalized()
+		card.rotation = direction.angle()

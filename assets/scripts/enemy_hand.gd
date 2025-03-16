@@ -20,11 +20,11 @@ func _on_window_resized():
 
 func update_hand_positions(speed):
 	var screen_width = get_viewport_rect().size.x  # Dynamically get the screen width
-	var center_screen_x = screen_width / 2
+	var center_screen_x = screen_width / 2.0  # Ensure floating-point division
 	var total_width = enemy_hand.size() * CARD_WIDTH
 	
 	# Calculate the starting X position to center the hand
-	var start_x = center_screen_x - (total_width / 2) + (CARD_WIDTH / 2)
+	var start_x = center_screen_x - (total_width / 2.0) + (CARD_WIDTH / 2.0)  # Ensure floating-point division
 
 	for i in range(enemy_hand.size()):
 		var x_offset = start_x + (i * CARD_WIDTH)

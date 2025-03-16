@@ -8,7 +8,7 @@ const STARTER_HAND_SIZE = 4
 const CARD_WIDTH: int = 130
 const CARD_SCALE: Vector2 = Vector2(1.5, 1.5)  # Ensuring correct scale
 
-var opponent_deck: Array = ["shotgun-card", "shotgun-card", "shotgun-card", "ammo-card-1", "ammo-card-2", "ammo-card-2"]
+var opponent_deck: Array = ["shotgun-card", "ammo-card-1", "ammo-card-2"]
 var enemy_hand: Array = []  
 var empty_weapon_card_slots: Array = []  
 var opponent_cards_on_battlefield: Array = []  
@@ -58,13 +58,13 @@ func add_card_to_hand(card, speed):
 func update_hand_positions(speed):
 	var screen_width = get_window().size.x
 	var total_width = (enemy_hand.size() - 1) * CARD_WIDTH
-	var center_screen_x = screen_width / 2
+	var center_screen_x = screen_width / 2.0  # Ensure floating-point division
 
 	# Set Y position so the cards are visible at the top
 	var hidden_y_position = 125  # Adjust this value
 
 	for i in range(enemy_hand.size()):
-		var x_offset = center_screen_x - (i * CARD_WIDTH) + (total_width / 2)
+		var x_offset = center_screen_x - (i * CARD_WIDTH) + (total_width / 2.0)  # Ensure floating-point division
 		var new_position = Vector2(x_offset, hidden_y_position)
 		enemy_hand[i].hand_position = new_position
 		animate_card_to_position(enemy_hand[i], new_position, speed)

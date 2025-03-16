@@ -76,7 +76,7 @@ func direct_attack(attacking_card, attacker) -> void:
 		healthBarTween.set_trans(Tween.TRANS_QUAD)
 		healthBarTween.tween_property($"../HealthBar", "value", player_health, 0.4)
 		if player_health < STARTING_HEALTH / 1.5:
-			if player_health > STARTING_HEALTH / 3:
+			if player_health > STARTING_HEALTH / 3.0:  # Ensure floating-point division
 				if not already_mid_range:
 					already_mid_range = true
 					already_dead_range = false
