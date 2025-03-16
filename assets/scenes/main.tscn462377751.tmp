@@ -69,7 +69,7 @@ position = Vector2(960, 750)
 scale = Vector2(1.5, 1.5)
 
 [node name="EnemyCardSlot" parent="CardSlots" instance=ExtResource("3_xplbd")]
-position = Vector2(960, 330)
+position = Vector2(960, 205)
 scale = Vector2(1.5, 1.5)
 
 [node name="PlayerHand" type="Node2D" parent="."]
@@ -132,9 +132,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -39.0
-offset_top = -15.5
+offset_top = -94.0
 offset_right = 39.0
-offset_bottom = 15.5
+offset_bottom = -63.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_default_cursor_shape = 2

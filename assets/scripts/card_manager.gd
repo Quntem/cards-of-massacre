@@ -15,12 +15,12 @@ func _ready() -> void:
 	screen_size = get_viewport_rect().size
 	player_hand_reference = $"../PlayerHand"
 	$"../InputManager".connect("left_mouse_button_released", on_left_click_released)
+	center_cards_in_hand()
 
 func _process(delta: float) -> void:
 	if card_being_dragged:
 		var mouse_pos = get_global_mouse_position()
-		card_being_dragged.position = Vector2(clamp(mouse_pos.x, 0, screen_size.x),
-			clamp(mouse_pos.y, 0, screen_size.y))
+		card_being_dragged.position = Vector2(clamp(mouse_pos.x, 0, screen_size.x), clamp(mouse_pos.y, 0, screen_size.y))
 
 func start_drag(card):
 	card_being_dragged = card
@@ -38,12 +38,10 @@ func finish_drag():
 		card_slot_found.card_in_slot = true
 		$"../BattleManager".player_cards_on_battlefield.append(card_being_dragged)
 		$"../AudioManager/cardPlaceSFX".play()
-		# if card_being_dragged.card_slot_card_is_in:
-			# $"../BattleManager".direct_attack(card_being_dragged, "Player")
-			# return
 	else:
 		player_hand_reference.add_card_to_hand(card_being_dragged, DEFAULT_CARD_MOVE_SPEED)
 	card_being_dragged = null
+	center_cards_in_hand()
 
 func connect_card_signals(card):
 	card.connect("hovered", on_hovered_over_card)
@@ -54,12 +52,12 @@ func on_left_click_released():
 		finish_drag()
 
 func on_hovered_over_card(card):
-	if !is_hovering_on_card:
+	if not is_hovering_on_card:
 		is_hovering_on_card = true
 		highlight_card(card, true)
 
 func on_hovered_off_card(card):
-	if !card.card_slot_card_is_in && !card_being_dragged:
+	if not card.card_slot_card_is_in and not card_being_dragged:
 		highlight_card(card, false)
 		var new_card_hovered = check_card_via_raycast()
 		if new_card_hovered:
@@ -102,8 +100,23 @@ func get_card_with_highest_z_index(cards):
 	var highest_z_index = highest_z_card.z_index
 	
 	for i in range(1, cards.size()):
-		var current_card = cards[1].collider.get_parent()
+		var current_card = cards[i].collider.get_parent()
 		if current_card.z_index > highest_z_index:
 			highest_z_card = current_card
 			highest_z_index = current_card.z_index
 	return highest_z_card
+
+func center_cards_in_hand():
+	var screen_width = get_viewport().size.x
+	var hand = player_hand_reference.get_children()
+	if hand.size() == 0:
+		return
+
+	var card_width = 100 * CARD_SMALLER_SCALE  # Assuming each card's width is 100 and scale is 1.45
+	var total_width = (card_width * hand.size()) + (20 * (hand.size() - 1))  # 20 is the spacing between cards
+	var start_x = (screen_width - total_width) / 2
+
+	for i in range(hand.size()):
+		var card = hand[i]
+		card.position.x = start_x + i * (card_width + 20)
+		card.position.y = screen_size.y - 200  # Adjust Y position as needed
