@@ -3,6 +3,7 @@ extends Node
 const SMALL_CARD_SCALE = Vector2(1.5, 1.5)  # Ensuring correct scale
 const CARD_MOVE_SPEED = 0.2
 const STARTING_HEALTH = 800
+const XP_AMOUNT = 2000
 
 var battle_timer
 var empty_weapon_card_slots: Array = []
@@ -14,6 +15,7 @@ var card_database_reference
 var already_mid_range: bool
 var already_dead_range: bool
 var opponent_deck
+var cards_used: int = 0
 
 func _ready() -> void:
 	battle_timer = $"../BattleTimer"
@@ -25,12 +27,10 @@ func _ready() -> void:
 	card_database_reference = preload("res://assets/scripts/card_database.gd")
 
 	player_health = STARTING_HEALTH
-	$"../PlayerHealth".text = str(player_health)
 	$"../HealthBar".max_value = STARTING_HEALTH
 	$"../HealthBar".value = player_health
 
 	opponent_health = STARTING_HEALTH
-	$"../EnemyHealth".text = str(opponent_health)
 
 	opponent_deck = $"../EnemyDeck"
 
@@ -49,6 +49,7 @@ func execute_player_actions() -> void:
 		var player_cards_to_attack = player_cards_on_battlefield.duplicate()
 		for card in player_cards_to_attack:
 			await direct_attack(card, "Player")
+			cards_used += 1
 
 func opponent_turn() -> void:
 	await wait(1.0)
@@ -135,7 +136,6 @@ func direct_attack(attacking_card, attacker) -> void:
 	if attacker == "Opponent":
 		player_health = max(0, player_health - attacking_card.damage)
 		destroy_card(attacking_card, attacker)
-		$"../PlayerHealth".text = str(player_health)
 
 		var healthBarTween = create_tween()
 		healthBarTween.set_ease(Tween.EASE_IN_OUT)
@@ -157,10 +157,13 @@ func direct_attack(attacking_card, attacker) -> void:
 			already_mid_range = false
 			already_dead_range = false
 			$"../HealthBar".texture_under = load("res://assets/images/health-bar-nofill-happy.png")
+		
+		if player_health == 0:
+			await healthBarTween.finished
+			game_over()
 	else:
 		opponent_health = max(0, opponent_health - attacking_card.damage)
 		destroy_card(attacking_card, attacker)
-		$"../EnemyHealth".text = str(opponent_health)
 		
 		var oppHealthBarTween = create_tween()
 		oppHealthBarTween.set_ease(Tween.EASE_IN_OUT)
@@ -227,3 +230,38 @@ func destroy_card(card, card_owner) -> void:
 	card.card_slot_card_is_in.card_in_slot = false
 	card.card_slot_card_is_in = null
 	card.queue_free()
+
+func game_over():
+	$"../HealthBar".texture_under = load("res://assets/images/health-bar-nofill-dead.png")
+	$"../AudioManager/gameOverSFX".play()
+	var deathDarkenerFadeIn = create_tween()
+	deathDarkenerFadeIn.set_ease(Tween.EASE_IN_OUT)
+	deathDarkenerFadeIn.set_trans(Tween.TRANS_QUAD)
+	deathDarkenerFadeIn.tween_property($"../DeathUI/Darkener", "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.4)
+	await deathDarkenerFadeIn.finished
+	
+	var skullFadeIn = create_tween()
+	skullFadeIn.set_ease(Tween.EASE_IN_OUT)
+	skullFadeIn.set_trans(Tween.TRANS_QUAD)
+	skullFadeIn.tween_property($"../DeathUI/Skull", "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.4)
+	await skullFadeIn.finished
+	await $"../AudioManager/gameOverSFX".finished
+	
+	var skullFadeOut = create_tween()
+	skullFadeOut.set_ease(Tween.EASE_IN_OUT)
+	skullFadeOut.set_trans(Tween.TRANS_QUAD)
+	skullFadeOut.tween_property($"../DeathUI/Skull", "modulate", Color(1.0, 1.0, 1.0, 0.0), 0.4)
+	await skullFadeOut.finished
+	
+	var textFadeIn = create_tween()
+	textFadeIn.set_ease(Tween.EASE_IN_OUT)
+	textFadeIn.set_trans(Tween.TRANS_QUAD)
+	textFadeIn.tween_property($"../DeathUI/XP", "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.4)
+	await textFadeIn.finished
+	
+	# Ensure cards_used is at least 1 to avoid division by zero
+	var cards_used_divided_by_eight = max(1, float(max(1, cards_used)) / 8.0)
+	print(cards_used_divided_by_eight)
+	$"../DeathUI/XP".text = str(int(max(0, XP_AMOUNT / cards_used_divided_by_eight * 0.5)))
+	
+	get_tree().paused = true
