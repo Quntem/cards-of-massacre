@@ -9,7 +9,14 @@ const CARD_WIDTH: int = 130
 const CARD_SCALE: Vector2 = Vector2(1.5, 1.5)  # Ensuring correct scale
 
 # Predefined set of cards to generate
-const INITIAL_DECK = ["shotgun-card", "shotgun-card", "shotgun-card", "ammo-card-1", "ammo-card-2", "ammo-card-2"]
+const INITIAL_DECK = [
+	"shotgun-card", "shotgun-card", "shotgun-card",
+	"ammo-card-1", "ammo-card-1", "ammo-card-1",
+	"ammo-card-2", "ammo-card-2", "ammo-card-2",
+	"shotgun-card", "shotgun-card", "shotgun-card",
+	"ammo-card-1", "ammo-card-1", "ammo-card-1",
+	"ammo-card-2", "ammo-card-2", "ammo-card-2"
+]
 
 var opponent_deck: Array = []
 var enemy_hand: Array = []  
@@ -31,7 +38,7 @@ func replenish_deck():
 	opponent_deck.shuffle()
 
 func draw_card():
-	if opponent_deck.is_empty():
+	if opponent_deck.size() < 3:
 		replenish_deck()
 	
 	var card_drawn_name = opponent_deck.pop_front()
@@ -44,6 +51,8 @@ func draw_card():
 	new_card.get_node("CardImage").texture = load(card_image_path)
 	new_card.damage = card_database_reference.CARDS[card_drawn_name][0]
 	new_card.card_type = card_database_reference.CARDS[card_drawn_name][3]
+	new_card.ammo = card_database_reference.CARDS[card_drawn_name][1]
+	new_card.card_name = card_drawn_name
 	
 	# Apply correct scale
 	new_card.scale = CARD_SCALE

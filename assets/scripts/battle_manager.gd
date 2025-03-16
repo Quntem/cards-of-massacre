@@ -66,6 +66,72 @@ func opponent_turn() -> void:
 			await direct_attack(card, "Opponent")
 
 func direct_attack(attacking_card, attacker) -> void:
+	if attacking_card.card_name == "shotgun-card":
+		$"../AudioManager/shotgunFireSFX".play()
+		
+		var shotgun = $"../CanvasLayer/Shotgun"
+		
+		var fadeInTween = get_tree().create_tween()
+		fadeInTween.set_ease(Tween.EASE_IN_OUT)
+		fadeInTween.set_trans(Tween.TRANS_QUAD)
+		fadeInTween.tween_property(shotgun, "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.4)
+		
+		var fadeInDarkenerTween = get_tree().create_tween()
+		fadeInDarkenerTween.set_ease(Tween.EASE_IN_OUT)
+		fadeInDarkenerTween.set_trans(Tween.TRANS_QUAD)
+		fadeInDarkenerTween.tween_property($"../CanvasLayer/Darkener", "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.2)
+		
+		if attacker == "Player":
+			var rotateLeft = get_tree().create_tween()
+			rotateLeft.set_ease(Tween.EASE_IN_OUT)
+			rotateLeft.set_trans(Tween.TRANS_QUAD)
+			rotateLeft.tween_property(shotgun, "rotation", deg_to_rad(-90), 0.6)
+			
+			await rotateLeft.finished # about 0.8 seconds
+			
+			var knockBack = get_tree().create_tween()
+			knockBack.set_ease(Tween.EASE_IN_OUT)
+			knockBack.set_trans(Tween.TRANS_QUAD)
+			knockBack.tween_property(shotgun, "position", Vector2(shotgun.position.x, 720), 0.1)
+			
+			await knockBack.finished
+			
+			var knockBackR = get_tree().create_tween()
+			knockBackR.set_ease(Tween.EASE_IN_OUT)
+			knockBackR.set_trans(Tween.TRANS_QUAD)
+			knockBackR.tween_property(shotgun, "position", Vector2(shotgun.position.x, 540), 0.8)
+		else:
+			var rotateRight = get_tree().create_tween()
+			rotateRight.set_ease(Tween.EASE_IN_OUT)
+			rotateRight.set_trans(Tween.TRANS_QUAD)
+			rotateRight.tween_property(shotgun, "rotation", deg_to_rad(90), 0.6)
+			
+			await rotateRight.finished # about 0.8 seconds
+			
+			var knockBack = get_tree().create_tween()
+			knockBack.set_ease(Tween.EASE_IN_OUT)
+			knockBack.set_trans(Tween.TRANS_QUAD)
+			knockBack.tween_property(shotgun, "position", Vector2(shotgun.position.x, 360), 0.1)
+			
+			await knockBack.finished
+			
+			var knockBackR = get_tree().create_tween()
+			knockBackR.set_ease(Tween.EASE_IN_OUT)
+			knockBackR.set_trans(Tween.TRANS_QUAD)
+			knockBackR.tween_property(shotgun, "position", Vector2(shotgun.position.x, 540), 0.8)
+		
+		var fadeOutTween = get_tree().create_tween()
+		fadeOutTween.set_ease(Tween.EASE_IN_OUT)
+		fadeOutTween.set_trans(Tween.TRANS_QUAD)
+		fadeOutTween.tween_property(shotgun, "modulate", Color(1.0, 1.0, 1.0, 0.0), 0.4)
+		
+		var fadeOutDarkenerTween = get_tree().create_tween()
+		fadeOutDarkenerTween.set_ease(Tween.EASE_IN_OUT)
+		fadeOutDarkenerTween.set_trans(Tween.TRANS_QUAD)
+		fadeOutDarkenerTween.tween_property($"../CanvasLayer/Darkener", "modulate", Color(1.0, 1.0, 1.0, 0.0), 0.4)
+		
+		await $"../AudioManager/shotgunFireSFX".finished # about 2.04 seconds
+		
 	if attacker == "Opponent":
 		player_health = max(0, player_health - attacking_card.damage)
 		destroy_card(attacking_card, attacker)
@@ -119,20 +185,25 @@ func try_play_card() -> void:
 	var random_empty_monster_card_slot = empty_weapon_card_slots.pick_random()
 	empty_weapon_card_slots.erase(random_empty_monster_card_slot)
 	
-	var current_card_with_highest_dmg = enemy_hand[0]
+	var best_card_to_place = enemy_hand[0]
 	for card in enemy_hand:
-		if card.damage > current_card_with_highest_dmg.damage:
-			current_card_with_highest_dmg = card
+		if card.damage > best_card_to_place.damage:
+			best_card_to_place = card
+	
+	if best_card_to_place.damage == 0:
+		for card in enemy_hand:
+			if card.ammo > best_card_to_place.ammo:
+				best_card_to_place = card
 	
 	var tween = get_tree().create_tween()
-	tween.tween_property(current_card_with_highest_dmg, "position", random_empty_monster_card_slot.position, CARD_MOVE_SPEED)
+	tween.tween_property(best_card_to_place, "position", random_empty_monster_card_slot.position, CARD_MOVE_SPEED)
 	var tween2 = get_tree().create_tween()
-	tween2.tween_property(current_card_with_highest_dmg, "scale", SMALL_CARD_SCALE, CARD_MOVE_SPEED)
-	current_card_with_highest_dmg.get_node("AnimationPlayer").play("card_flip")
+	tween2.tween_property(best_card_to_place, "scale", SMALL_CARD_SCALE, CARD_MOVE_SPEED)
+	best_card_to_place.get_node("AnimationPlayer").play("card_flip")
 
-	opponent_deck.remove_card_from_hand(current_card_with_highest_dmg)
-	current_card_with_highest_dmg.card_slot_card_is_in = random_empty_monster_card_slot
-	opponent_cards_on_battlefield.append(current_card_with_highest_dmg)
+	opponent_deck.remove_card_from_hand(best_card_to_place)
+	best_card_to_place.card_slot_card_is_in = random_empty_monster_card_slot
+	opponent_cards_on_battlefield.append(best_card_to_place)
 	
 	$"../AudioManager/cardPlaceSFX".play()
 	

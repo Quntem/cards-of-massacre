@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://dso701o2spc46"]
+[gd_scene load_steps=24 format=3 uid="uid://dso701o2spc46"]
 
 [ext_resource type="Script" uid="uid://c5r7gqo6m0slu" path="res://assets/scripts/card_manager.gd" id="1_kpi06"]
 [ext_resource type="Texture2D" uid="uid://dg0tqbd48ud5c" path="res://assets/images/health-bar-nofill-happy.png" id="1_t7a27"]
@@ -18,7 +18,6 @@
 [ext_resource type="AudioStream" uid="uid://bjvx76iggyci6" path="res://assets/audio/sfx/shotgun-fire.wav" id="12_rin3v"]
 [ext_resource type="Shader" uid="uid://dmscx2lqifghv" path="res://assets/shaders/background.gdshader" id="12_ua5jh"]
 [ext_resource type="AudioStream" uid="uid://grkl352hdiyu" path="res://assets/audio/sfx/card-place.wav" id="13_ahyqc"]
-[ext_resource type="Texture2D" uid="uid://b3yh4ygcn2vhf" path="res://assets/images/shotgun.png" id="14_onyvt"]
 [ext_resource type="AudioStream" uid="uid://cd47bs2r5wq4e" path="res://assets/audio/sfx/mid-warning.wav" id="15_ftd1h"]
 [ext_resource type="AudioStream" uid="uid://de3cfdsvftr5f" path="res://assets/audio/sfx/crit-warning.wav" id="16_xqcey"]
 
@@ -130,25 +129,6 @@ texture = ExtResource("4_sfrgt")
 
 [node name="InputManager" type="Node2D" parent="."]
 script = ExtResource("6_vesw4")
-
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
-
-[node name="Shotgun" type="Sprite2D" parent="CanvasLayer"]
-modulate = Color(1, 1, 1, 0)
-z_index = 1
-texture_filter = 1
-position = Vector2(960, 540)
-scale = Vector2(8, 8)
-texture = ExtResource("14_onyvt")
-
-[node name="Darkener" type="Panel" parent="CanvasLayer"]
-modulate = Color(1, 1, 1, 0)
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
 
 [node name="AudioManager" type="Node" parent="."]
 
