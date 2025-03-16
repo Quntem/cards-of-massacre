@@ -77,7 +77,7 @@ func direct_attack(attacking_card, attacker) -> void:
 		healthBarTween.tween_property($"../HealthBar", "value", player_health, 0.4)
 		if player_health < STARTING_HEALTH / 1.5:
 			if player_health > STARTING_HEALTH / 3:
-				if not already_mid_range:  # Ensures sound plays only when state changes
+				if not already_mid_range:
 					already_mid_range = true
 					already_dead_range = false
 					$"../HealthBar".texture_under = load("res://assets/images/health-bar-nofill-mid.png")
@@ -95,7 +95,12 @@ func direct_attack(attacking_card, attacker) -> void:
 		opponent_health = max(0, opponent_health - attacking_card.damage)
 		destroy_card(attacking_card, attacker)
 		$"../EnemyHealth".text = str(opponent_health)
-
+		
+		var oppHealthBarTween = create_tween()
+		oppHealthBarTween.set_ease(Tween.EASE_IN_OUT)
+		oppHealthBarTween.set_trans(Tween.TRANS_QUAD)
+		oppHealthBarTween.tween_property($"../EnemyHealthBar", "value", opponent_health, 0.4)
+		
 	await get_tree().create_timer(0.5).timeout  # Slight delay to visualize the attack
 
 func wait(wait_time: float) -> void:
@@ -107,7 +112,7 @@ func try_play_card() -> void:
 	var enemy_hand = opponent_deck.enemy_hand
 	if enemy_hand.size() == 0:
 		return
-
+	
 	if empty_weapon_card_slots.size() == 0:
 		return
 	

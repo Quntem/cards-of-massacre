@@ -1,13 +1,14 @@
 extends Node2D
 
 const CARD_WIDTH: int = 130
-const HAND_Y_POSITION: int = -30
+const HAND_Y_POSITION: int = 50  # Adjust Y position for enemy hand
 const DEFAULT_CARD_MOVE_SPEED: float = 0.2
 
 var enemy_hand: Array = []
 
 func _ready() -> void:
-	get_window().connect("size_changed", Callable(self, "_on_window_resized"))  # Detects window resizing
+	# Correct signal connection with Callable
+	get_viewport().connect("size_changed", Callable(self, "_on_window_resized"))
 
 func add_card_to_hand(card, speed = DEFAULT_CARD_MOVE_SPEED):
 	if card not in enemy_hand:
@@ -18,17 +19,17 @@ func _on_window_resized():
 	update_hand_positions(0)  # Instantly reposition on resize
 
 func update_hand_positions(speed):
-	var viewport_size = get_viewport_rect().size  # Get live viewport size
-	var center_screen_x = viewport_size.x / 2  # Correct center every frame
-	var total_width = max((enemy_hand.size() - 1) * CARD_WIDTH, 0)  # Prevent negative width
-	var start_x = center_screen_x - (total_width / 2)  # Corrected centering logic
+	var screen_width = get_viewport_rect().size.x  # Dynamically get the screen width
+	var center_screen_x = screen_width / 2
+	var total_width = enemy_hand.size() * CARD_WIDTH
+	
+	# Calculate the starting X position to center the hand
+	var start_x = center_screen_x - (total_width / 2) + (CARD_WIDTH / 2)
 
 	for i in range(enemy_hand.size()):
 		var x_offset = start_x + (i * CARD_WIDTH)
 		var new_position = Vector2(x_offset, HAND_Y_POSITION)
 		var card = enemy_hand[i]
-
-		# If resizing, instantly reposition. Otherwise, animate.
 		if speed > 0:
 			animate_card_to_position(card, new_position, speed)
 		else:
