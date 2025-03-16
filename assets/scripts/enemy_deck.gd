@@ -8,14 +8,17 @@ const STARTER_HAND_SIZE = 4
 const CARD_WIDTH: int = 130
 const CARD_SCALE: Vector2 = Vector2(1.5, 1.5)  # Ensuring correct scale
 
-var opponent_deck: Array = ["shotgun-card", "ammo-card-1", "ammo-card-2"]
+# Predefined set of cards to generate
+const INITIAL_DECK = ["shotgun-card", "shotgun-card", "shotgun-card", "ammo-card-1", "ammo-card-2", "ammo-card-2"]
+
+var opponent_deck: Array = []
 var enemy_hand: Array = []  
 var empty_weapon_card_slots: Array = []  
 var opponent_cards_on_battlefield: Array = []  
 var card_database_reference
 
 func _ready() -> void:
-	opponent_deck.shuffle()
+	replenish_deck()
 	card_database_reference = preload("res://assets/scripts/card_database.gd")
 	empty_weapon_card_slots.append($"../CardSlots/EnemyCardSlot")  
 	
@@ -23,15 +26,16 @@ func _ready() -> void:
 		draw_card()
 		await get_tree().create_timer(.2).timeout
 
+func replenish_deck():
+	opponent_deck = INITIAL_DECK.duplicate()
+	opponent_deck.shuffle()
+
 func draw_card():
 	if opponent_deck.is_empty():
-		return
+		replenish_deck()
 	
 	var card_drawn_name = opponent_deck.pop_front()
 	$"../AudioManager/cardSwipeSFX".play()
-	
-	if opponent_deck.is_empty():
-		$Sprite2D.visible = false
 	
 	# Create the card instance
 	var card_scene = preload(CARD_SCENE_PATH)

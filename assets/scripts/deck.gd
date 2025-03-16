@@ -4,7 +4,7 @@ const CARD_SCENE_PATH = "res://assets/scenes/subscene/card.tscn"
 const CARD_DRAW_SPEED = 0.2
 const STARTER_HAND_SIZE = 4
 
-var player_deck: Array = ["shotgun-card", "shotgun-card", "shotgun-card", "ammo-card-1", "ammo-card-2", "ammo-card-2"]
+var player_deck: Array = ["shotgun-card", "ammo-card-1", "ammo-card-2"]
 var card_database_reference
 var drawn_card_this_turn: bool = false
 
