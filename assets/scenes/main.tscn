@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=3 uid="uid://dso701o2spc46"]
+[gd_scene load_steps=34 format=3 uid="uid://dso701o2spc46"]
 
 [ext_resource type="Script" uid="uid://c5r7gqo6m0slu" path="res://assets/scripts/card_manager.gd" id="1_kpi06"]
 [ext_resource type="Texture2D" uid="uid://dg0tqbd48ud5c" path="res://assets/images/health-bar-nofill-happy.png" id="1_t7a27"]
@@ -18,12 +18,17 @@
 [ext_resource type="AudioStream" uid="uid://bjvx76iggyci6" path="res://assets/audio/sfx/shotgun-fire.wav" id="12_rin3v"]
 [ext_resource type="Shader" uid="uid://dmscx2lqifghv" path="res://assets/shaders/background.gdshader" id="12_ua5jh"]
 [ext_resource type="AudioStream" uid="uid://grkl352hdiyu" path="res://assets/audio/sfx/card-place.wav" id="13_ahyqc"]
+[ext_resource type="Texture2D" uid="uid://cbcybdempk308" path="res://assets/images/6px-spacing-ammo.png" id="14_elvbs"]
 [ext_resource type="Texture2D" uid="uid://b3yh4ygcn2vhf" path="res://assets/images/shotgun.png" id="14_onyvt"]
 [ext_resource type="Texture2D" uid="uid://bi78xvl25ae6n" path="res://assets/images/skull.png" id="14_q5xp6"]
 [ext_resource type="AudioStream" uid="uid://cd47bs2r5wq4e" path="res://assets/audio/sfx/mid-warning.wav" id="15_ftd1h"]
+[ext_resource type="Texture2D" uid="uid://62ca1sqsiwjo" path="res://assets/images/crown.png" id="15_k0jt7"]
 [ext_resource type="FontFile" uid="uid://baci8h3yftcl3" path="res://assets/fonts/Jersey10-Regular.ttf" id="15_ye0uq"]
 [ext_resource type="AudioStream" uid="uid://de3cfdsvftr5f" path="res://assets/audio/sfx/crit-warning.wav" id="16_xqcey"]
 [ext_resource type="AudioStream" uid="uid://debdvqlgvs21q" path="res://assets/audio/sfx/game-over.wav" id="21_m64nd"]
+[ext_resource type="Texture2D" uid="uid://bbcw1ns6jhcmn" path="res://assets/images/end-turn-btn.png" id="24_pqtk7"]
+[ext_resource type="Texture2D" uid="uid://b0xho6wjysywv" path="res://assets/images/end-turn-btn-hovered.png" id="25_jbgu6"]
+[ext_resource type="Texture2D" uid="uid://cyvv82iv0fk2j" path="res://assets/images/end-turn-btn-disabled.png" id="26_kxv8u"]
 
 [sub_resource type="GDScript" id="GDScript_t7a27"]
 
@@ -47,46 +52,6 @@ shader_parameter/blur = 0.0
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(960, 540)
 script = SubResource("GDScript_t7a27")
-
-[node name="HealthBar" type="TextureProgressBar" parent="."]
-texture_filter = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -242.0
-offset_top = -242.0
-offset_right = -194.0
-offset_bottom = -194.0
-grow_horizontal = 0
-grow_vertical = 0
-scale = Vector2(4, 4)
-max_value = 800.0
-value = 800.0
-fill_mode = 3
-texture_under = ExtResource("1_t7a27")
-texture_progress = ExtResource("3_ftd1h")
-
-[node name="EnemyHealthBar" type="TextureProgressBar" parent="."]
-texture_filter = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -146.0
-offset_top = -363.0
-offset_right = -98.0
-offset_bottom = -315.0
-grow_horizontal = 0
-grow_vertical = 0
-scale = Vector2(2, 2)
-max_value = 800.0
-value = 800.0
-fill_mode = 3
-texture_under = ExtResource("3_v3q3d")
-texture_progress = ExtResource("4_onyvt")
 
 [node name="CardManager" type="Node2D" parent="."]
 script = ExtResource("1_kpi06")
@@ -137,10 +102,94 @@ texture = ExtResource("4_sfrgt")
 [node name="InputManager" type="Node2D" parent="."]
 script = ExtResource("6_vesw4")
 
-[node name="DeathUI" type="CanvasLayer" parent="."]
+[node name="MatchUI" type="CanvasLayer" parent="."]
+
+[node name="HealthBar" type="TextureProgressBar" parent="MatchUI"]
+texture_filter = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -242.0
+offset_top = -314.0
+offset_right = -194.0
+offset_bottom = -266.0
+grow_horizontal = 0
+grow_vertical = 0
+scale = Vector2(4, 4)
+max_value = 800.0
+value = 800.0
+fill_mode = 3
+texture_under = ExtResource("1_t7a27")
+texture_progress = ExtResource("3_ftd1h")
+
+[node name="EnemyHealthBar" type="TextureProgressBar" parent="MatchUI"]
+texture_filter = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -146.0
+offset_top = -439.0
+offset_right = -98.0
+offset_bottom = -391.0
+grow_horizontal = 0
+grow_vertical = 0
+scale = Vector2(2, 2)
+max_value = 800.0
+value = 800.0
+fill_mode = 3
+texture_under = ExtResource("3_v3q3d")
+texture_progress = ExtResource("4_onyvt")
+
+[node name="AmmoContainer" type="HBoxContainer" parent="MatchUI"]
+texture_filter = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -942.0
+offset_top = -99.0
+offset_right = -496.0
+offset_bottom = -72.0
+grow_horizontal = 0
+grow_vertical = 0
+scale = Vector2(2, 2)
+alignment = 2
+
+[node name="Ammo1" type="TextureRect" parent="MatchUI/AmmoContainer"]
+layout_mode = 2
+texture = ExtResource("14_elvbs")
+stretch_mode = 4
+
+[node name="Ammo2" type="TextureRect" parent="MatchUI/AmmoContainer"]
+layout_mode = 2
+texture = ExtResource("14_elvbs")
+stretch_mode = 4
+
+[node name="Ammo3" type="TextureRect" parent="MatchUI/AmmoContainer"]
+layout_mode = 2
+texture = ExtResource("14_elvbs")
+stretch_mode = 4
+
+[node name="Ammo4" type="TextureRect" parent="MatchUI/AmmoContainer"]
+layout_mode = 2
+texture = ExtResource("14_elvbs")
+stretch_mode = 4
+
+[node name="Ammo5" type="TextureRect" parent="MatchUI/AmmoContainer"]
+layout_mode = 2
+texture = ExtResource("14_elvbs")
+stretch_mode = 4
+
+[node name="WinUI" type="CanvasLayer" parent="."]
 process_mode = 3
 
-[node name="XP" type="Label" parent="DeathUI"]
+[node name="XP" type="Label" parent="WinUI"]
+process_mode = 3
 modulate = Color(1, 1, 1, 0)
 z_index = 1
 texture_filter = 1
@@ -158,13 +207,79 @@ grow_vertical = 2
 theme_override_constants/line_spacing = -100
 theme_override_fonts/font = ExtResource("15_ye0uq")
 theme_override_font_sizes/font_size = 280
-text = "0"
+text = "0 XP"
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 clip_text = true
+metadata/_edit_lock_ = true
+
+[node name="Crown" type="TextureRect" parent="WinUI"]
+process_mode = 3
+modulate = Color(1, 1, 1, 0)
+z_index = 1
+texture_filter = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -74.0
+offset_top = -63.0
+offset_right = -56.0
+offset_bottom = -47.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(8, 8)
+mouse_filter = 2
+texture = ExtResource("15_k0jt7")
+expand_mode = 1
+stretch_mode = 2
+metadata/_edit_lock_ = true
+
+[node name="Darkener" type="Panel" parent="WinUI"]
+process_mode = 3
+modulate = Color(1, 1, 1, 0)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_m64nd")
+metadata/_edit_lock_ = true
+
+[node name="DeathUI" type="CanvasLayer" parent="."]
+process_mode = 3
+
+[node name="XP" type="Label" parent="DeathUI"]
+process_mode = 3
+modulate = Color(1, 1, 1, 0)
+z_index = 1
+texture_filter = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -960.0
+offset_top = -540.0
+offset_right = 960.0
+offset_bottom = 540.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/line_spacing = -100
+theme_override_fonts/font = ExtResource("15_ye0uq")
+theme_override_font_sizes/font_size = 280
+text = "0 XP"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+clip_text = true
+metadata/_edit_lock_ = true
 
 [node name="Skull" type="TextureRect" parent="DeathUI"]
+process_mode = 3
 modulate = Color(1, 1, 1, 0)
 z_index = 1
 texture_filter = 1
@@ -184,8 +299,10 @@ mouse_filter = 2
 texture = ExtResource("14_q5xp6")
 expand_mode = 1
 stretch_mode = 2
+metadata/_edit_lock_ = true
 
 [node name="Darkener" type="Panel" parent="DeathUI"]
+process_mode = 3
 modulate = Color(1, 1, 1, 0)
 anchors_preset = 15
 anchor_right = 1.0
@@ -235,9 +352,10 @@ stream = ExtResource("15_ftd1h")
 stream = ExtResource("16_xqcey")
 
 [node name="gameOverSFX" type="AudioStreamPlayer" parent="AudioManager"]
+process_mode = 3
 stream = ExtResource("21_m64nd")
 
-[node name="EndTurnButton" type="Button" parent="."]
+[node name="EndTurnButton" type="TextureButton" parent="."]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -250,7 +368,11 @@ offset_bottom = 15.5
 grow_horizontal = 2
 grow_vertical = 2
 mouse_default_cursor_shape = 2
-text = "End Turn"
+texture_normal = ExtResource("24_pqtk7")
+texture_pressed = ExtResource("24_pqtk7")
+texture_hover = ExtResource("25_jbgu6")
+texture_disabled = ExtResource("26_kxv8u")
+texture_focused = ExtResource("24_pqtk7")
 
 [node name="BattleManager" type="Node" parent="."]
 script = ExtResource("8_6rsl6")

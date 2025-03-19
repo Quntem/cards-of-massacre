@@ -10,12 +10,14 @@ const CARD_SCALE: Vector2 = Vector2(1.5, 1.5)  # Ensuring correct scale
 
 # Predefined set of cards to generate
 const INITIAL_DECK = [
-	"shotgun-card", "shotgun-card", "shotgun-card",
-	"ammo-card-1", "ammo-card-1", "ammo-card-1",
-	"ammo-card-2", "ammo-card-2", "ammo-card-2",
-	"shotgun-card", "shotgun-card", "shotgun-card",
-	"ammo-card-1", "ammo-card-1", "ammo-card-1",
-	"ammo-card-2", "ammo-card-2", "ammo-card-2"
+	"shotgun-card", "shotgun-card", 
+	"ammo-card-1", "ammo-card-1",
+	"ammo-card-2", "ammo-card-2",
+	"shotgun-card", "shotgun-card",
+	"ammo-card-1", "ammo-card-2",
+	"shotgun-card", "shotgun-card",
+	"ammo-card-1", "ammo-card-2",
+	"shotgun-card", "ammo-card-1"
 ]
 
 var opponent_deck: Array = []

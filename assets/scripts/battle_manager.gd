@@ -1,176 +1,143 @@
 extends Node
 
-const SMALL_CARD_SCALE = Vector2(1.5, 1.5)  # Ensuring correct scale
+@onready var ammo_container = $"../MatchUI/AmmoContainer"
+@onready var ammo_icons = ammo_container.get_children()
+
+const SMALL_CARD_SCALE = Vector2(1.5, 1.5)
 const CARD_MOVE_SPEED = 0.2
 const STARTING_HEALTH = 800
+const BASE_XP = 500
 const XP_AMOUNT = 2000
+const TURN_BONUS = 100  # Bonus XP for each turn under a certain threshold
+const SKIP_PENALTY_FACTOR = 0.1  # Penalty factor per skipped turn
+const ROUND_PENALTY_FACTOR = 1.05  # Penalty factor for each round
+const MAX_AMMO = 5
 
 var battle_timer
-var empty_weapon_card_slots: Array = []
-var opponent_cards_on_battlefield: Array = []
-var player_cards_on_battlefield: Array = []
-var player_health
-var opponent_health
-var card_database_reference
-var already_mid_range: bool
-var already_dead_range: bool
+var empty_weapon_card_slots = []
+var opponent_cards_on_battlefield = []
+var player_cards_on_battlefield = []
+var player_health = STARTING_HEALTH
+var opponent_health = STARTING_HEALTH
+var card_database_reference = preload("res://assets/scripts/card_database.gd")
+var already_mid_range = false
+var already_dead_range = false
 var opponent_deck
-var cards_used: int = 0
+var ammo_cards_used = 0
+var attack_cards_used = 0
+var skipped_turns = 0
+var turns = 0
+var game_ended = false
+var player_ammo = 0
+var opponent_ammo = 0
 
 func _ready() -> void:
 	battle_timer = $"../BattleTimer"
 	battle_timer.one_shot = true
 	battle_timer.wait_time = 1.0
-
 	empty_weapon_card_slots.append($"../CardSlots/EnemyCardSlot")
-
-	card_database_reference = preload("res://assets/scripts/card_database.gd")
-
-	player_health = STARTING_HEALTH
-	$"../HealthBar".max_value = STARTING_HEALTH
-	$"../HealthBar".value = player_health
-
-	opponent_health = STARTING_HEALTH
-
+	
+	$"../MatchUI/HealthBar".max_value = STARTING_HEALTH
+	$"../MatchUI/HealthBar".value = player_health
+	
 	opponent_deck = $"../EnemyDeck"
+	
+	update_ammo_display()
 
 func _on_end_turn_button_pressed() -> void:
-	# Disable the end turn button immediately to prevent multiple presses
 	$"../EndTurnButton".disabled = true
-	$"../EndTurnButton".visible = false
-
-	execute_player_actions()
+	turns += 1
+	await execute_player_actions()
 	await wait(1.0)
 	await opponent_turn()
 	end_opponent_turn()
 
 func execute_player_actions() -> void:
-	if player_cards_on_battlefield.size() > 0:
-		var player_cards_to_attack = player_cards_on_battlefield.duplicate()
-		for card in player_cards_to_attack:
+	if game_ended: return
+	
+	if player_cards_on_battlefield:
+		for card in player_cards_on_battlefield.duplicate():
+			if card.card_type == "Attack":
+				if card.card_name == "shotgun-card" and player_ammo < 1:
+					destroy_card(card, "Player")
+					continue
+				elif card.card_name == "shotgun-card" and player_ammo > 1:
+					attack_cards_used += 1
+			elif card.card_type == "Ammo":
+				ammo_cards_used += 1
+				add_ammo(card.ammo, "Player")  # Use the card's ammo value
 			await direct_attack(card, "Player")
-			cards_used += 1
+	else:
+		skipped_turns += 1
 
 func opponent_turn() -> void:
+	if game_ended: return
+	
 	await wait(1.0)
-
-	if opponent_deck.opponent_deck.size() != 0:
+	if turns > 1 and opponent_deck.opponent_deck:
 		opponent_deck.draw_card()
 		await wait(1.0)
-
-	if empty_weapon_card_slots.size() != 0:
+	if empty_weapon_card_slots:
 		await try_play_card()
-
-	if opponent_cards_on_battlefield.size() != 0:
-		var enemy_cards_to_attack = opponent_cards_on_battlefield.duplicate()
-		for card in enemy_cards_to_attack:
+	if opponent_cards_on_battlefield:
+		for card in opponent_cards_on_battlefield.duplicate():
 			await direct_attack(card, "Opponent")
 
 func direct_attack(attacking_card, attacker) -> void:
 	if attacking_card.card_name == "shotgun-card":
-		$"../AudioManager/shotgunFireSFX".play()
-		
-		var shotgun = $"../CanvasLayer/Shotgun"
-		
-		var fadeInTween = get_tree().create_tween()
-		fadeInTween.set_ease(Tween.EASE_IN_OUT)
-		fadeInTween.set_trans(Tween.TRANS_QUAD)
-		fadeInTween.tween_property(shotgun, "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.4)
-		
-		var fadeInDarkenerTween = get_tree().create_tween()
-		fadeInDarkenerTween.set_ease(Tween.EASE_IN_OUT)
-		fadeInDarkenerTween.set_trans(Tween.TRANS_QUAD)
-		fadeInDarkenerTween.tween_property($"../CanvasLayer/Darkener", "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.2)
-		
-		if attacker == "Player":
-			var rotateLeft = get_tree().create_tween()
-			rotateLeft.set_ease(Tween.EASE_IN_OUT)
-			rotateLeft.set_trans(Tween.TRANS_QUAD)
-			rotateLeft.tween_property(shotgun, "rotation", deg_to_rad(-90), 0.6)
-			
-			await rotateLeft.finished # about 0.8 seconds
-			
-			var knockBack = get_tree().create_tween()
-			knockBack.set_ease(Tween.EASE_IN_OUT)
-			knockBack.set_trans(Tween.TRANS_QUAD)
-			knockBack.tween_property(shotgun, "position", Vector2(shotgun.position.x, 720), 0.1)
-			
-			await knockBack.finished
-			
-			var knockBackR = get_tree().create_tween()
-			knockBackR.set_ease(Tween.EASE_IN_OUT)
-			knockBackR.set_trans(Tween.TRANS_QUAD)
-			knockBackR.tween_property(shotgun, "position", Vector2(shotgun.position.x, 540), 0.8)
+		if (attacker == "Player" and player_ammo > 0) or (attacker == "Opponent" and opponent_ammo > 0):
+			$"../AudioManager/shotgunFireSFX".play()
+			await play_shotgun_animation(attacker)
+			if attacker == "Player":
+				add_ammo(-1, "Player")
+			else:
+				add_ammo(-1, "Opponent")
 		else:
-			var rotateRight = get_tree().create_tween()
-			rotateRight.set_ease(Tween.EASE_IN_OUT)
-			rotateRight.set_trans(Tween.TRANS_QUAD)
-			rotateRight.tween_property(shotgun, "rotation", deg_to_rad(90), 0.6)
-			
-			await rotateRight.finished # about 0.8 seconds
-			
-			var knockBack = get_tree().create_tween()
-			knockBack.set_ease(Tween.EASE_IN_OUT)
-			knockBack.set_trans(Tween.TRANS_QUAD)
-			knockBack.tween_property(shotgun, "position", Vector2(shotgun.position.x, 360), 0.1)
-			
-			await knockBack.finished
-			
-			var knockBackR = get_tree().create_tween()
-			knockBackR.set_ease(Tween.EASE_IN_OUT)
-			knockBackR.set_trans(Tween.TRANS_QUAD)
-			knockBackR.tween_property(shotgun, "position", Vector2(shotgun.position.x, 540), 0.8)
-		
-		var fadeOutTween = get_tree().create_tween()
-		fadeOutTween.set_ease(Tween.EASE_IN_OUT)
-		fadeOutTween.set_trans(Tween.TRANS_QUAD)
-		fadeOutTween.tween_property(shotgun, "modulate", Color(1.0, 1.0, 1.0, 0.0), 0.4)
-		
-		var fadeOutDarkenerTween = get_tree().create_tween()
-		fadeOutDarkenerTween.set_ease(Tween.EASE_IN_OUT)
-		fadeOutDarkenerTween.set_trans(Tween.TRANS_QUAD)
-		fadeOutDarkenerTween.tween_property($"../CanvasLayer/Darkener", "modulate", Color(1.0, 1.0, 1.0, 0.0), 0.4)
-		
-		await $"../AudioManager/shotgunFireSFX".finished # about 2.04 seconds
-		
+			return
+	
 	if attacker == "Opponent":
-		player_health = max(0, player_health - attacking_card.damage)
-		destroy_card(attacking_card, attacker)
+		update_health("Player", attacking_card.damage)
+	else:
+		update_health("Opponent", attacking_card.damage)
+	
+	destroy_card(attacking_card, attacker)
+	await get_tree().create_timer(0.5).timeout
 
-		var healthBarTween = create_tween()
-		healthBarTween.set_ease(Tween.EASE_IN_OUT)
-		healthBarTween.set_trans(Tween.TRANS_QUAD)
-		healthBarTween.tween_property($"../HealthBar", "value", player_health, 0.4)
+func update_health(target: String, damage: int):
+	if target == "Player":
+		player_health = max(0, player_health - damage)
+		update_health_bar($"../MatchUI/HealthBar", player_health, target)
+		if player_health == 0:
+			game_over()
+	else:
+		opponent_health = max(0, opponent_health - damage)
+		update_health_bar($"../MatchUI/EnemyHealthBar", opponent_health, target)
+		if opponent_health == 0:
+			win()
+
+func update_health_bar(health_bar, health: int, target):
+	var tween = create_tween()
+	tween.set_ease(Tween.EASE_IN_OUT)
+	tween.set_trans(Tween.TRANS_QUAD)
+	tween.tween_property(health_bar, "value", health, 0.4)
+	
+	if target == "Player":
 		if player_health < STARTING_HEALTH / 1.5:
 			if player_health > STARTING_HEALTH / 3.0:  # Ensure floating-point division
 				if not already_mid_range:
 					already_mid_range = true
 					already_dead_range = false
-					$"../HealthBar".texture_under = load("res://assets/images/health-bar-nofill-mid.png")
+					$"../MatchUI/HealthBar".texture_under = load("res://assets/images/health-bar-nofill-mid.png")
 					$"../AudioManager/midWarningSFX".play()
 			elif not already_dead_range:
 				already_mid_range = false
 				already_dead_range = true
-				$"../HealthBar".texture_under = load("res://assets/images/health-bar-nofill-angry.png")
+				$"../MatchUI/HealthBar".texture_under = load("res://assets/images/health-bar-nofill-angry.png")
 				$"../AudioManager/critWarningSFX".play()
 		else:
 			already_mid_range = false
 			already_dead_range = false
-			$"../HealthBar".texture_under = load("res://assets/images/health-bar-nofill-happy.png")
-		
-		if player_health == 0:
-			await healthBarTween.finished
-			game_over()
-	else:
-		opponent_health = max(0, opponent_health - attacking_card.damage)
-		destroy_card(attacking_card, attacker)
-		
-		var oppHealthBarTween = create_tween()
-		oppHealthBarTween.set_ease(Tween.EASE_IN_OUT)
-		oppHealthBarTween.set_trans(Tween.TRANS_QUAD)
-		oppHealthBarTween.tween_property($"../EnemyHealthBar", "value", opponent_health, 0.4)
-		
-	await get_tree().create_timer(0.5).timeout  # Slight delay to visualize the attack
+			$"../MatchUI/HealthBar".texture_under = load("res://assets/images/health-bar-nofill-happy.png")
 
 func wait(wait_time: float) -> void:
 	battle_timer.wait_time = wait_time
@@ -179,60 +146,128 @@ func wait(wait_time: float) -> void:
 
 func try_play_card() -> void:
 	var enemy_hand = opponent_deck.enemy_hand
-	if enemy_hand.size() == 0:
+	if enemy_hand.is_empty() or empty_weapon_card_slots.is_empty():
 		return
 	
-	if empty_weapon_card_slots.size() == 0:
-		return
+	var slot = empty_weapon_card_slots.pop_front()
+	var best_card = enemy_hand.reduce(
+		func(best, current): 
+			return current if current.damage > best.damage or (current.damage == best.damage and current.ammo > best.ammo) else best,
+		enemy_hand[0] # Initial value (first card)
+	)
 	
-	var random_empty_monster_card_slot = empty_weapon_card_slots.pick_random()
-	empty_weapon_card_slots.erase(random_empty_monster_card_slot)
-	
-	var best_card_to_place = enemy_hand[0]
-	for card in enemy_hand:
-		if card.damage > best_card_to_place.damage:
-			best_card_to_place = card
-	
-	if best_card_to_place.damage == 0:
+	if best_card.card_type == "Attack" and opponent_ammo < 1:
+		# Get at least 1 ammo before using an attack card
 		for card in enemy_hand:
-			if card.ammo > best_card_to_place.ammo:
-				best_card_to_place = card
+			if card.card_type == "Ammo":
+				best_card = card
+				add_ammo(card.ammo, "Opponent")  # Use the card's ammo value
+				break
 	
 	var tween = get_tree().create_tween()
-	tween.tween_property(best_card_to_place, "position", random_empty_monster_card_slot.position, CARD_MOVE_SPEED)
-	var tween2 = get_tree().create_tween()
-	tween2.tween_property(best_card_to_place, "scale", SMALL_CARD_SCALE, CARD_MOVE_SPEED)
-	best_card_to_place.get_node("AnimationPlayer").play("card_flip")
-
-	opponent_deck.remove_card_from_hand(best_card_to_place)
-	best_card_to_place.card_slot_card_is_in = random_empty_monster_card_slot
-	opponent_cards_on_battlefield.append(best_card_to_place)
+	tween.tween_property(best_card, "position", slot.position, CARD_MOVE_SPEED)
+	tween.tween_property(best_card, "scale", SMALL_CARD_SCALE, CARD_MOVE_SPEED)
+	best_card.get_node("AnimationPlayer").play("card_flip")
 	
+	opponent_deck.remove_card_from_hand(best_card)
+	best_card.card_slot_card_is_in = slot
+	opponent_cards_on_battlefield.append(best_card)
 	$"../AudioManager/cardPlaceSFX".play()
-	
 	await wait(1.0)
+
+func play_shotgun_animation(attacker) -> void:
+	var shotgun = $"../CanvasLayer/Shotgun"
+	var fadeInTween = get_tree().create_tween()
+	fadeInTween.set_ease(Tween.EASE_IN_OUT)
+	fadeInTween.set_trans(Tween.TRANS_QUAD)
+	fadeInTween.tween_property(shotgun, "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.4)
+	
+	var fadeInDarkenerTween = get_tree().create_tween()
+	fadeInDarkenerTween.set_ease(Tween.EASE_IN_OUT)
+	fadeInDarkenerTween.set_trans(Tween.TRANS_QUAD)
+	fadeInDarkenerTween.tween_property($"../CanvasLayer/Darkener", "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.2)
+	
+	if attacker == "Player":
+		var rotateLeft = get_tree().create_tween()
+		rotateLeft.set_ease(Tween.EASE_IN_OUT)
+		rotateLeft.set_trans(Tween.TRANS_QUAD)
+		rotateLeft.tween_property(shotgun, "rotation", deg_to_rad(-90), 0.6)
+		
+		await rotateLeft.finished # about 0.8 seconds
+		
+		var knockBack = get_tree().create_tween()
+		knockBack.set_ease(Tween.EASE_IN_OUT)
+		knockBack.set_trans(Tween.TRANS_QUAD)
+		knockBack.tween_property(shotgun, "position", Vector2(shotgun.position.x, 720), 0.1)
+		
+		await knockBack.finished
+		
+		var knockBackR = get_tree().create_tween()
+		knockBackR.set_ease(Tween.EASE_IN_OUT)
+		knockBackR.set_trans(Tween.TRANS_QUAD)
+		knockBackR.tween_property(shotgun, "position", Vector2(shotgun.position.x, 540), 0.8)
+	else:
+		var rotateRight = get_tree().create_tween()
+		rotateRight.set_ease(Tween.EASE_IN_OUT)
+		rotateRight.set_trans(Tween.TRANS_QUAD)
+		rotateRight.tween_property(shotgun, "rotation", deg_to_rad(90), 0.6)
+		
+		await rotateRight.finished # about 0.8 seconds
+		
+		var knockBack = get_tree().create_tween()
+		knockBack.set_ease(Tween.EASE_IN_OUT)
+		knockBack.set_trans(Tween.TRANS_QUAD)
+		knockBack.tween_property(shotgun, "position", Vector2(shotgun.position.x, 360), 0.1)
+		
+		await knockBack.finished
+		
+		var knockBackR = get_tree().create_tween()
+		knockBackR.set_ease(Tween.EASE_IN_OUT)
+		knockBackR.set_trans(Tween.TRANS_QUAD)
+		knockBackR.tween_property(shotgun, "position", Vector2(shotgun.position.x, 540), 0.8)
+	
+	var fadeOutTween = get_tree().create_tween()
+	fadeOutTween.set_ease(Tween.EASE_IN_OUT)
+	fadeOutTween.set_trans(Tween.TRANS_QUAD)
+	fadeOutTween.tween_property(shotgun, "modulate", Color(1.0, 1.0, 1.0, 0.0), 0.4)
+	
+	var fadeOutDarkenerTween = get_tree().create_tween()
+	fadeOutDarkenerTween.set_ease(Tween.EASE_IN_OUT)
+	fadeOutDarkenerTween.set_trans(Tween.TRANS_QUAD)
+	fadeOutDarkenerTween.tween_property($"../CanvasLayer/Darkener", "modulate", Color(1.0, 1.0, 1.0, 0.0), 0.4)
+	
+	await get_tree().create_timer(0.5).timeout
 
 func end_opponent_turn() -> void:
 	$"../Deck".reset_draw()
 	$"../EndTurnButton".disabled = false
-	$"../EndTurnButton".visible = true
+
+func update_ammo_display():
+	for i in range(MAX_AMMO):
+		if i < player_ammo:
+			ammo_icons[i].modulate = Color(1, 1, 1, 1)
+		else:
+			ammo_icons[i].modulate = Color(0, 0, 0, 1)
+
+func add_ammo(amount: int, who):
+	if who == "Player":
+		player_ammo = min(player_ammo + amount, MAX_AMMO)  # Ensures it never goes above the MAX AMMO
+		update_ammo_display()
+	elif who == "Opponent":
+		opponent_ammo = min(opponent_ammo + amount, MAX_AMMO)
 
 func destroy_card(card, card_owner) -> void:
 	if card_owner == "Player":
-		if card in player_cards_on_battlefield:
-			player_cards_on_battlefield.erase(card)
+		player_cards_on_battlefield.erase(card)
 	else:
-		if card in opponent_cards_on_battlefield:
-			opponent_cards_on_battlefield.erase(card)
-			if card.card_slot_card_is_in and card.card_slot_card_is_in not in empty_weapon_card_slots:
-				empty_weapon_card_slots.append(card.card_slot_card_is_in)
-
+		opponent_cards_on_battlefield.erase(card)
+		empty_weapon_card_slots.append(card.card_slot_card_is_in)
+	
 	card.card_slot_card_is_in.card_in_slot = false
-	card.card_slot_card_is_in = null
 	card.queue_free()
 
 func game_over():
-	$"../HealthBar".texture_under = load("res://assets/images/health-bar-nofill-dead.png")
+	$"../MatchUI/HealthBar".texture_under = load("res://assets/images/health-bar-nofill-dead.png")
 	$"../AudioManager/gameOverSFX".play()
 	var deathDarkenerFadeIn = create_tween()
 	deathDarkenerFadeIn.set_ease(Tween.EASE_IN_OUT)
@@ -259,9 +294,70 @@ func game_over():
 	textFadeIn.tween_property($"../DeathUI/XP", "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.4)
 	await textFadeIn.finished
 	
-	# Ensure cards_used is at least 1 to avoid division by zero
-	var cards_used_divided_by_eight = max(1, float(max(1, cards_used)) / 8.0)
-	print(cards_used_divided_by_eight)
-	$"../DeathUI/XP".text = str(int(max(0, XP_AMOUNT / cards_used_divided_by_eight * 0.5)))
+	var cards_xp_deduction = float(max(1.0, float(ammo_cards_used) / 8.0) + max(1.0, float(attack_cards_used) / 4.0))
+	var safe_skipped_turns = max(1, skipped_turns)  # Prevent division by zero
+	var safe_turns = max(1, turns)  # Prevent division by zero
 	
+	var xp_gained_full = max(0.0, BASE_XP + float(XP_AMOUNT) / cards_xp_deduction + (TURN_BONUS * (10 - safe_turns)) - (SKIP_PENALTY_FACTOR * skipped_turns * XP_AMOUNT))
+	xp_gained_full /= pow(ROUND_PENALTY_FACTOR, safe_turns)  # Apply round penalty
+	
+	var xp_gained = max(0.0, xp_gained_full / 2)
+	
+	await tween_label_number($"../DeathUI/XP", 0, xp_gained_full, 2.0)
+	await wait(0.5)
+	await tween_label_number($"../DeathUI/XP", xp_gained_full, xp_gained, 1.0)
 	get_tree().paused = true
+
+func win():
+	game_ended = true
+	
+	$"../AudioManager/gameOverSFX".play()
+	var winDarkenerFadeIn = create_tween()
+	winDarkenerFadeIn.set_ease(Tween.EASE_IN_OUT)
+	winDarkenerFadeIn.set_trans(Tween.TRANS_QUAD)
+	winDarkenerFadeIn.tween_property($"../WinUI/Darkener", "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.4)
+	await winDarkenerFadeIn.finished
+	
+	var crownFadeIn = create_tween()
+	crownFadeIn.set_ease(Tween.EASE_IN_OUT)
+	crownFadeIn.set_trans(Tween.TRANS_QUAD)
+	crownFadeIn.tween_property($"../WinUI/Crown", "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.4)
+	await crownFadeIn.finished
+	await $"../AudioManager/gameOverSFX".finished
+	
+	var crownFadeOut = create_tween()
+	crownFadeOut.set_ease(Tween.EASE_IN_OUT)
+	crownFadeOut.set_trans(Tween.TRANS_QUAD)
+	crownFadeOut.tween_property($"../WinUI/Crown", "modulate", Color(1.0, 1.0, 1.0, 0.0), 0.4)
+	await crownFadeOut.finished
+	
+	var textFadeIn = create_tween()
+	textFadeIn.set_ease(Tween.EASE_IN_OUT)
+	textFadeIn.set_trans(Tween.TRANS_QUAD)
+	textFadeIn.tween_property($"../WinUI/XP", "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.4)
+	await textFadeIn.finished
+	
+	var cards_xp_deduction = float(max(1.0, float(ammo_cards_used) / 8.0) + max(1.0, float(attack_cards_used) / 4.0))
+	var safe_skipped_turns = max(1, skipped_turns)  # Prevent division by zero
+	var safe_turns = max(1, turns)  # Prevent division by zero
+	
+	var xp_gained = max(0.0, BASE_XP + float(XP_AMOUNT) / cards_xp_deduction + (TURN_BONUS * (10 - safe_turns)) - (SKIP_PENALTY_FACTOR * skipped_turns * XP_AMOUNT))
+	xp_gained /= pow(ROUND_PENALTY_FACTOR, safe_turns)  # Apply round penalty
+	
+	await tween_label_number($"../WinUI/XP", 0, xp_gained, 2.0)
+
+func calculate_xp() -> float:
+	var xp_deduction = max(1.0, float(ammo_cards_used) / 8.0 + float(attack_cards_used) / 4.0)
+	var xp_gained = max(0.0, BASE_XP + float(XP_AMOUNT) / xp_deduction + (TURN_BONUS * (10 - max(1, turns))) - (SKIP_PENALTY_FACTOR * skipped_turns * XP_AMOUNT))
+	xp_gained /= pow(ROUND_PENALTY_FACTOR, max(1, turns))  # Apply round penalty
+	return xp_gained
+
+func tween_label_number(label: Label, start_value: int, end_value: int, duration: float):
+	var tween = get_tree().create_tween()
+	tween.set_ease(Tween.EASE_IN_OUT)
+	tween.set_trans(Tween.TRANS_QUAD)
+	tween.tween_method(update_label_text.bind(label), start_value, end_value, duration)
+	await tween.finished
+
+func update_label_text(value: float, label: Label):
+	label.text = str(int(value)) + " XP"

@@ -6,13 +6,16 @@ const STARTER_HAND_SIZE = 4
 
 # Predefined set of cards to generate
 const INITIAL_DECK = [
-	"shotgun-card", "shotgun-card", "shotgun-card",
-	"ammo-card-1", "ammo-card-1", "ammo-card-1",
-	"ammo-card-2", "ammo-card-2", "ammo-card-2",
-	"shotgun-card", "shotgun-card", "shotgun-card",
-	"ammo-card-1", "ammo-card-1", "ammo-card-1",
-	"ammo-card-2", "ammo-card-2", "ammo-card-2"
+	"shotgun-card", "shotgun-card", 
+	"ammo-card-1", "ammo-card-1",
+	"ammo-card-2", "ammo-card-2",
+	"shotgun-card", "shotgun-card",
+	"ammo-card-1", "ammo-card-2",
+	"shotgun-card", "shotgun-card",
+	"ammo-card-1", "ammo-card-2",
+	"shotgun-card", "ammo-card-1"
 ]
+
 
 var player_deck: Array = []
 var card_database_reference
