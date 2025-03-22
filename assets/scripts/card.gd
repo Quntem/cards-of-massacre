@@ -9,6 +9,7 @@ var card_type
 var damage
 var ammo
 var card_name
+var ammo_req
 
 func _ready() -> void:
 	get_parent().connect_card_signals(self)

@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dnrgff7sqtp1x" path="res://assets/scripts/enemy_card.gd" id="1_w8fmt"]
 [ext_resource type="Texture2D" uid="uid://4gyifrytg8be" path="res://assets/images/deck.png" id="2_c5fc4"]
-[ext_resource type="Texture2D" uid="uid://b0nomjnw5cl0h" path="res://assets/images/ammo-card-1.png" id="3_p5and"]
+[ext_resource type="Texture2D" uid="uid://dkxrkhwbjpsfi" path="res://assets/images/card-outline-white.png" id="3_w8fmt"]
 
 [sub_resource type="Animation" id="Animation_fhjc8"]
 length = 0.001
@@ -125,7 +125,12 @@ texture = ExtResource("2_c5fc4")
 [node name="CardImage" type="Sprite2D" parent="."]
 z_index = -1
 texture_filter = 1
-texture = ExtResource("3_p5and")
+texture = ExtResource("2_c5fc4")
+
+[node name="CardOutline" type="Sprite2D" parent="."]
+modulate = Color(1, 1, 1, 0)
+texture_filter = 1
+texture = ExtResource("3_w8fmt")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {

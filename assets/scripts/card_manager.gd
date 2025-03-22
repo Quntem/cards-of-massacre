@@ -24,8 +24,9 @@ func _process(_delta: float) -> void:
 	update_card_tilts()
 
 func start_drag(card):
-	card_being_dragged = card
-	card.scale = Vector2(1.5, 1.5)
+	if (card.ammo_req <= $"../BattleManager".player_ammo) or (card.ammo_req == 0):
+		card_being_dragged = card
+		card.scale = Vector2(1.5, 1.5)
 
 func finish_drag():
 	var card_slot_found = check_card_slot_via_raycast()
@@ -38,6 +39,7 @@ func finish_drag():
 		card_being_dragged.get_node("Area2D/CollisionShape2D").disabled = true
 		card_slot_found.card_in_slot = true
 		$"../BattleManager".player_cards_on_battlefield.append(card_being_dragged)
+		card_being_dragged.get_node("CardOutline").modulate = Color(1, 1, 1, 0)
 		$"../AudioManager/cardPlaceSFX".play()
 	else:
 		player_hand_reference.add_card_to_hand(card_being_dragged, DEFAULT_CARD_MOVE_SPEED)
@@ -68,9 +70,24 @@ func on_hovered_off_card(card):
 
 func highlight_card(card, hovered):
 	if hovered:
-		card.scale = Vector2(1.55, 1.55)
+		var tween = create_tween()
+		tween.set_ease(Tween.EASE_IN)
+		tween.set_trans(Tween.TRANS_QUAD)
+		tween.tween_property(card, "scale", Vector2(1.6, 1.6), 0.08)
+		var tween2 = create_tween()
+		tween2.set_ease(Tween.EASE_IN)
+		tween2.set_trans(Tween.TRANS_QUAD)
+		tween2.tween_property(card.get_node("CardOutline"), "modulate", Color(1, 1, 1, 1), 0.08)
 		card.z_index = 2
 	else:
+		var tween = create_tween()
+		tween.set_ease(Tween.EASE_OUT)
+		tween.set_trans(Tween.TRANS_QUAD)
+		tween.tween_property(card, "scale", Vector2(1.5, 1.5), 0.08)
+		var tween2 = create_tween()
+		tween2.set_ease(Tween.EASE_IN)
+		tween2.set_trans(Tween.TRANS_QUAD)
+		tween2.tween_property(card.get_node("CardOutline"), "modulate", Color(1, 1, 1, 0), 0.08)
 		card.scale = Vector2(1.5, 1.5)
 		card.z_index = 1
 

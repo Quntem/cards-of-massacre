@@ -1,35 +1,45 @@
 extends Node
 
+# onready stuff
 @onready var ammo_container = $"../MatchUI/AmmoContainer"
 @onready var ammo_icons = ammo_container.get_children()
 
-const SMALL_CARD_SCALE = Vector2(1.5, 1.5)
-const CARD_MOVE_SPEED = 0.2
-const STARTING_HEALTH = 800
-const BASE_XP = 500
-const XP_AMOUNT = 2000
-const TURN_BONUS = 100  # Bonus XP for each turn under a certain threshold
-const SKIP_PENALTY_FACTOR = 0.1  # Penalty factor per skipped turn
-const ROUND_PENALTY_FACTOR = 1.05  # Penalty factor for each round
-const MAX_AMMO = 5
+# constant stuff
+const CARD_MOVE_SPEED: float = 0.2
+const SKIP_PENALTY_FACTOR: float = 0.1  # penalty factor per skipped turn
+const ROUND_PENALTY_FACTOR: float = 1.05  # penalty factor for each round
 
+const SMALL_CARD_SCALE: Vector2 = Vector2(1.5, 1.5)
+
+const STARTING_HEALTH: int = 800
+const BASE_XP: int = 500
+const XP_AMOUNT: int = 2000
+const TURN_BONUS: int = 100  # bonus xp for each turn under a certain threshold
+const MAX_AMMO: int = 5
+
+
+# variable stuff
 var battle_timer
-var empty_weapon_card_slots = []
-var opponent_cards_on_battlefield = []
-var player_cards_on_battlefield = []
-var player_health = STARTING_HEALTH
-var opponent_health = STARTING_HEALTH
-var card_database_reference = preload("res://assets/scripts/card_database.gd")
-var already_mid_range = false
-var already_dead_range = false
 var opponent_deck
-var ammo_cards_used = 0
-var attack_cards_used = 0
-var skipped_turns = 0
-var turns = 0
-var game_ended = false
-var player_ammo = 0
-var opponent_ammo = 0
+
+var empty_weapon_card_slots: Array = []
+var opponent_cards_on_battlefield: Array = []
+var player_cards_on_battlefield: Array = []
+
+var already_mid_range: bool = false
+var already_dead_range: bool = false
+
+var player_health: int = STARTING_HEALTH
+var opponent_health: int = STARTING_HEALTH
+var ammo_cards_used: int = 0
+var attack_cards_used: int = 0
+var skipped_turns: int = 0
+var turns: int = 0
+var game_ended: bool = false
+var player_ammo: int = 0
+var opponent_ammo: int = 0
+
+var card_database_reference = preload("res://assets/scripts/card_database.gd")
 
 func _ready() -> void:
 	battle_timer = $"../BattleTimer"
@@ -51,6 +61,7 @@ func _on_end_turn_button_pressed() -> void:
 	await wait(1.0)
 	await opponent_turn()
 	end_opponent_turn()
+	check_for_usuable_cards()
 
 func execute_player_actions() -> void:
 	if game_ended: return
@@ -58,15 +69,15 @@ func execute_player_actions() -> void:
 	if player_cards_on_battlefield:
 		for card in player_cards_on_battlefield.duplicate():
 			if card.card_type == "Attack":
-				if card.card_name == "shotgun-card" and player_ammo < 1:
-					destroy_card(card, "Player")
-					continue
-				elif card.card_name == "shotgun-card" and player_ammo > 1:
-					attack_cards_used += 1
+				if player_ammo > card.ammo_req: # if valid
+					add_ammo(-card.ammo_req, "Player")
+					await direct_attack(card, "Player")
+				destroy_card(card, "Player")
+				attack_cards_used += 1
 			elif card.card_type == "Ammo":
 				ammo_cards_used += 1
-				add_ammo(card.ammo, "Player")  # Use the card's ammo value
-			await direct_attack(card, "Player")
+				add_ammo(card.ammo, "Player")
+				destroy_card(card, "Player")
 	else:
 		skipped_turns += 1
 
@@ -85,7 +96,7 @@ func opponent_turn() -> void:
 
 func direct_attack(attacking_card, attacker) -> void:
 	if attacking_card.card_name == "shotgun-card":
-		if (attacker == "Player" and player_ammo > 0) or (attacker == "Opponent" and opponent_ammo > 0):
+		if player_ammo > 0 or opponent_ammo > 0:
 			$"../AudioManager/shotgunFireSFX".play()
 			await play_shotgun_animation(attacker)
 			if attacker == "Player":
@@ -175,6 +186,15 @@ func try_play_card() -> void:
 	$"../AudioManager/cardPlaceSFX".play()
 	await wait(1.0)
 
+func check_for_usuable_cards():
+	for card in $"../PlayerHand".player_hand:
+		if card.ammo_req > player_ammo: # unusuable cards
+			card.get_node("CardImage").self_modulate = Color(0.2, 0.2, 0.2, 1)
+			card.get_node("CardBackImage").self_modulate = Color(0.2, 0.2, 0.2, 1)
+		else: # usable cards
+			card.get_node("CardImage").self_modulate = Color(1, 1, 1, 1)
+			card.get_node("CardBackImage").self_modulate = Color(1, 1, 1, 1)
+
 func play_shotgun_animation(attacker) -> void:
 	var shotgun = $"../CanvasLayer/Shotgun"
 	var fadeInTween = get_tree().create_tween()
@@ -245,9 +265,17 @@ func end_opponent_turn() -> void:
 func update_ammo_display():
 	for i in range(MAX_AMMO):
 		if i < player_ammo:
-			ammo_icons[i].modulate = Color(1, 1, 1, 1)
+			await tween_icon(ammo_icons[i], Color(1, 1, 1, 1), 0.2)
 		else:
-			ammo_icons[i].modulate = Color(0, 0, 0, 1)
+			await tween_icon(ammo_icons[i], Color(0.2, 0.2, 0.2, 1), 0.2)
+
+# Separate function to handle tweening
+func tween_icon(icon, target_color, seconds):
+	var tween = create_tween()
+	tween.set_ease(Tween.EASE_IN)
+	tween.set_trans(Tween.TRANS_QUAD)
+	tween.tween_property(icon, "modulate", target_color, seconds)
+	await tween.finished
 
 func add_ammo(amount: int, who):
 	if who == "Player":
@@ -295,7 +323,6 @@ func game_over():
 	await textFadeIn.finished
 	
 	var cards_xp_deduction = float(max(1.0, float(ammo_cards_used) / 8.0) + max(1.0, float(attack_cards_used) / 4.0))
-	var safe_skipped_turns = max(1, skipped_turns)  # Prevent division by zero
 	var safe_turns = max(1, turns)  # Prevent division by zero
 	
 	var xp_gained_full = max(0.0, BASE_XP + float(XP_AMOUNT) / cards_xp_deduction + (TURN_BONUS * (10 - safe_turns)) - (SKIP_PENALTY_FACTOR * skipped_turns * XP_AMOUNT))
@@ -338,7 +365,6 @@ func win():
 	await textFadeIn.finished
 	
 	var cards_xp_deduction = float(max(1.0, float(ammo_cards_used) / 8.0) + max(1.0, float(attack_cards_used) / 4.0))
-	var safe_skipped_turns = max(1, skipped_turns)  # Prevent division by zero
 	var safe_turns = max(1, turns)  # Prevent division by zero
 	
 	var xp_gained = max(0.0, BASE_XP + float(XP_AMOUNT) / cards_xp_deduction + (TURN_BONUS * (10 - safe_turns)) - (SKIP_PENALTY_FACTOR * skipped_turns * XP_AMOUNT))
