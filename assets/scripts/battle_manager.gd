@@ -13,12 +13,9 @@ const SKIP_PENALTY_FACTOR: float = 0.1  # penalty factor per skipped turn
 const ROUND_PENALTY_FACTOR: float = 1.05  # penalty factor for each round
 
 const SMALL_CARD_SCALE: Vector2 = Vector2(1.5, 1.5)
-
-const STARTING_HEALTH: int = 800
 const BASE_XP: int = 500
 const XP_AMOUNT: int = 2000
 const TURN_BONUS: int = 100  # bonus xp for each turn under a certain threshold
-const MAX_AMMO: int = 5
 
 # variable stuff
 var battle_timer
@@ -31,8 +28,11 @@ var player_cards_on_battlefield: Array = []
 var already_mid_range: bool = false
 var already_dead_range: bool = false
 
+var PLAYER_MAX_AMMO: int = Global.max_ammo
+var MAX_AMMO: int = 5
+var STARTING_HEALTH: int = Global.max_health
 var player_health: int = STARTING_HEALTH
-var opponent_health: int = STARTING_HEALTH
+var opponent_health: int = 800
 var ammo_cards_used: int = 0
 var attack_cards_used: int = 0
 var skipped_turns: int = 0
@@ -130,6 +130,7 @@ func update_health(target: String, damage: int):
 			game_over()
 	else:
 		opponent_health = max(0, opponent_health - damage)
+		print(opponent_health)
 		update_health_bar($"../MatchUI/EnemyHealthBar", opponent_health, target)
 		if opponent_health == 0:
 			win()
@@ -272,7 +273,16 @@ func end_opponent_turn() -> void:
 	$"../EndTurnButton".visible = true
 
 func update_ammo_display():
-	for i in range(MAX_AMMO):
+	print(Global.max_ammo)
+	
+	# Ensure there are enough ammo icons
+	while ammo_container.get_child_count() < PLAYER_MAX_AMMO:
+		var new_ammo_icon = ammo_icons[0].duplicate()  # Duplicate the first icon
+		ammo_container.add_child(new_ammo_icon)
+		ammo_icons.append(new_ammo_icon)
+
+	# Update the display
+	for i in range(PLAYER_MAX_AMMO):
 		if i < player_ammo:
 			await tween_icon(ammo_icons[i], Color(1, 1, 1, 1), 0.2)
 		else:
@@ -295,7 +305,7 @@ func tween_icon(icon, target_color, seconds):
 
 func add_ammo(amount: int, who):
 	if who == "Player":
-		player_ammo = min(player_ammo + amount, MAX_AMMO)  # Ensures it never goes above the MAX AMMO
+		player_ammo = min(player_ammo + amount, player_ammo)  # Ensures it never goes above the MAX AMMO
 		update_ammo_display()
 	elif who == "Opponent":
 		opponent_ammo = min(opponent_ammo + amount, MAX_AMMO)

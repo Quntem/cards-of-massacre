@@ -1,11 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://8fw63ta48w5i"]
+[gd_scene load_steps=5 format=3 uid="uid://8fw63ta48w5i"]
 
 [ext_resource type="Script" uid="uid://xhrgw3dcilrv" path="res://assets/scripts/upgrade_button.gd" id="1_ko0ju"]
-[ext_resource type="Texture2D" uid="uid://d4g4np3cx73h3" path="res://assets/images/heart.png" id="2_vhufu"]
 [ext_resource type="FontFile" uid="uid://injx0ycimrcg" path="res://assets/fonts/Jersey25-Regular.ttf" id="3_3xrxt"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_l8au2"]
-bg_color = Color(0, 0, 0, 0.9)
+bg_color = Color(0, 0, 0, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
@@ -17,7 +16,7 @@ corner_detail = 1
 bg_color = Color(0, 0, 0, 0.5)
 
 [node name="UpgradeButton" type="Button"]
-clip_children = 2
+z_index = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -65,7 +64,6 @@ offset_right = 112.0
 offset_bottom = 28.0
 grow_vertical = 2
 mouse_filter = 2
-texture = ExtResource("2_vhufu")
 expand_mode = 1
 stretch_mode = 4
 
@@ -78,10 +76,9 @@ offset_right = 372.0
 offset_bottom = 43.0
 theme_override_fonts/font = ExtResource("3_3xrxt")
 theme_override_font_sizes/font_size = 24
-text = "Beginner's Determination"
 vertical_alignment = 1
 
-[node name="Title2" type="Label" parent="."]
+[node name="Desc" type="Label" parent="."]
 texture_filter = 1
 layout_mode = 0
 offset_left = 143.0
@@ -92,8 +89,12 @@ theme_override_colors/font_color = Color(1, 1, 1, 0.75)
 theme_override_constants/line_spacing = -3
 theme_override_fonts/font = ExtResource("3_3xrxt")
 theme_override_font_sizes/font_size = 16
-text = "You feel determined to be the master. +100 HP"
 vertical_alignment = 1
 autowrap_mode = 2
+
+[node name="Line2D" type="Line2D" parent="."]
+modulate = Color(1, 1, 1, 0.5)
+top_level = true
+width = 3.0
 
 [connection signal="pressed" from="." to="." method="_on_pressed"]

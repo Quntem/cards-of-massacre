@@ -21,6 +21,7 @@ config/icon="uid://cko0y6jt3nyy4"
 [autoload]
 
 Global="*res://assets/scripts/global.gd"
+Autoload="*res://assets/scripts/autoload.gd"
 
 [display]
 

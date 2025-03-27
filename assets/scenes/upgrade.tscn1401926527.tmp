@@ -1,0 +1,41 @@
+[gd_scene load_steps=6 format=3 uid="uid://cb8y5aa8760v6"]
+
+[ext_resource type="Script" uid="uid://tplpum7cw81k" path="res://assets/scripts/upgrade.gd" id="1_c0ido"]
+[ext_resource type="Shader" uid="uid://c0yc6fkg6pysu" path="res://assets/shaders/upgrade_background_shader.gdshader" id="1_l8au2"]
+[ext_resource type="PackedScene" uid="uid://8fw63ta48w5i" path="res://assets/scenes/subscene/upgrade_button.tscn" id="3_c0ido"]
+[ext_resource type="Script" uid="uid://ce1aty5hu6jcy" path="res://assets/scripts/upgrade_tree_camera.gd" id="3_l6dx6"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_igga6"]
+shader = ExtResource("1_l8au2")
+shader_parameter/background_color = Vector4(0, 0, 0, 1)
+shader_parameter/line_color = Vector4(0.05, 0.05, 0.05, 1)
+shader_parameter/grid_size = 50.0
+shader_parameter/line_thickness = 0.02
+
+[node name="Main" type="Node"]
+script = ExtResource("1_c0ido")
+
+[node name="ParallaxBackground" type="ParallaxBackground" parent="."]
+
+[node name="ParallaxLayer" type="ParallaxLayer" parent="ParallaxBackground"]
+
+[node name="Background" type="ColorRect" parent="ParallaxBackground/ParallaxLayer"]
+material = SubResource("ShaderMaterial_igga6")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+metadata/_edit_lock_ = true
+
+[node name="UpgradeTree" type="Node" parent="."]
+
+[node name="UpgradeButton" parent="UpgradeTree" instance=ExtResource("3_c0ido")]
+texture_filter = 1
+texture_repeat = 1
+title = "Beginner's Determination"
+description = "You feel determined to be the master. +100 HP"
+
+[node name="UpgradeTreeCamera" type="Camera2D" parent="."]
+position = Vector2(960, 540)
+script = ExtResource("3_l6dx6")
