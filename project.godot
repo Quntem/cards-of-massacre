@@ -13,9 +13,14 @@ config_version=5
 config/name="Cards Of Massacre"
 config/description="Shoot someone to death or obtain 9 bullets and massacre your friends (or the bot, who's 100% volunteered) with cute, little cards. What would possibly go wrong?"
 config/version="v0"
-run/main_scene="uid://dso701o2spc46"
+run/main_scene="uid://b4ljq4dxjxty0"
 config/features=PackedStringArray("4.4", "Forward Plus")
+boot_splash/show_image=false
 config/icon="uid://cko0y6jt3nyy4"
+
+[autoload]
+
+Global="*res://assets/scripts/global.gd"
 
 [display]
 
@@ -31,6 +36,7 @@ enabled=PackedStringArray("res://addons/wakatime/plugin.cfg")
 
 [rendering]
 
+textures/canvas_textures/default_texture_filter=0
 environment/defaults/default_clear_color=Color(0, 0, 0, 1)
 
 [shader_globals]

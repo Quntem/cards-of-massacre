@@ -1,0 +1,99 @@
+[gd_scene load_steps=6 format=3 uid="uid://8fw63ta48w5i"]
+
+[ext_resource type="Script" uid="uid://xhrgw3dcilrv" path="res://assets/scripts/upgrade_button.gd" id="1_ko0ju"]
+[ext_resource type="Texture2D" uid="uid://d4g4np3cx73h3" path="res://assets/images/heart.png" id="2_vhufu"]
+[ext_resource type="FontFile" uid="uid://injx0ycimrcg" path="res://assets/fonts/Jersey25-Regular.ttf" id="3_3xrxt"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_l8au2"]
+bg_color = Color(0, 0, 0, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.9)
+corner_detail = 1
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8jm25"]
+bg_color = Color(0, 0, 0, 0.5)
+
+[node name="UpgradeButton" type="Button"]
+clip_children = 2
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -206.0
+offset_top = -49.0
+offset_right = 206.0
+offset_bottom = 49.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_styles/focus = SubResource("StyleBoxFlat_l8au2")
+theme_override_styles/disabled_mirrored = SubResource("StyleBoxFlat_l8au2")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_l8au2")
+theme_override_styles/hover_pressed_mirrored = SubResource("StyleBoxFlat_l8au2")
+theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_l8au2")
+theme_override_styles/hover_mirrored = SubResource("StyleBoxFlat_l8au2")
+theme_override_styles/hover = SubResource("StyleBoxFlat_l8au2")
+theme_override_styles/pressed_mirrored = SubResource("StyleBoxFlat_l8au2")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_l8au2")
+theme_override_styles/normal_mirrored = SubResource("StyleBoxFlat_l8au2")
+theme_override_styles/normal = SubResource("StyleBoxFlat_l8au2")
+script = ExtResource("1_ko0ju")
+
+[node name="Panel" type="Panel" parent="."]
+z_index = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_8jm25")
+
+[node name="Icon" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 40.0
+offset_top = -27.0
+offset_right = 112.0
+offset_bottom = 28.0
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_vhufu")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="Title" type="Label" parent="."]
+texture_filter = 1
+layout_mode = 0
+offset_left = 143.0
+offset_top = 18.0
+offset_right = 372.0
+offset_bottom = 43.0
+theme_override_fonts/font = ExtResource("3_3xrxt")
+theme_override_font_sizes/font_size = 24
+text = "Beginner's Determination"
+vertical_alignment = 1
+
+[node name="Title2" type="Label" parent="."]
+texture_filter = 1
+layout_mode = 0
+offset_left = 143.0
+offset_top = 50.0
+offset_right = 372.0
+offset_bottom = 81.0
+theme_override_colors/font_color = Color(1, 1, 1, 0.75)
+theme_override_constants/line_spacing = -3
+theme_override_fonts/font = ExtResource("3_3xrxt")
+theme_override_font_sizes/font_size = 16
+text = "You feel determined to be the master. +100 HP"
+vertical_alignment = 1
+autowrap_mode = 2
+
+[connection signal="pressed" from="." to="." method="_on_pressed"]

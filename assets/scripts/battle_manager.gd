@@ -4,6 +4,9 @@ extends Node
 @onready var ammo_container = $"../MatchUI/AmmoContainer"
 @onready var ammo_icons = ammo_container.get_children()
 
+@onready var opp_ammo_container = $"../MatchUI/EnemyAmmoContainer"
+@onready var opp_ammo_icons = opp_ammo_container.get_children()
+
 # constant stuff
 const CARD_MOVE_SPEED: float = 0.2
 const SKIP_PENALTY_FACTOR: float = 0.1  # penalty factor per skipped turn
@@ -16,7 +19,6 @@ const BASE_XP: int = 500
 const XP_AMOUNT: int = 2000
 const TURN_BONUS: int = 100  # bonus xp for each turn under a certain threshold
 const MAX_AMMO: int = 5
-
 
 # variable stuff
 var battle_timer
@@ -42,6 +44,8 @@ var opponent_ammo: int = 0
 var card_database_reference = preload("res://assets/scripts/card_database.gd")
 
 func _ready() -> void:
+	Global.load_data()
+	
 	battle_timer = $"../BattleTimer"
 	battle_timer.one_shot = true
 	battle_timer.wait_time = 1.0
@@ -53,9 +57,11 @@ func _ready() -> void:
 	opponent_deck = $"../EnemyDeck"
 	
 	update_ammo_display()
+	update_enemy_ammo_display()
 
 func _on_end_turn_button_pressed() -> void:
 	$"../EndTurnButton".disabled = true
+	$"../EndTurnButton".visible = false
 	turns += 1
 	await execute_player_actions()
 	await wait(1.0)
@@ -68,11 +74,13 @@ func execute_player_actions() -> void:
 	
 	if player_cards_on_battlefield:
 		for card in player_cards_on_battlefield.duplicate():
-			if card.card_type == "Attack":
-				if player_ammo > card.ammo_req: # if valid
-					add_ammo(-card.ammo_req, "Player")
-					await direct_attack(card, "Player")
-				destroy_card(card, "Player")
+			if card.card_type == "Attack" && player_ammo > card.ammo_req:
+				add_ammo(-card.ammo_req, "Player")
+				if card.card_name == "Shotgun":
+					$"../AudioManager/shotgunFireSFX".play()
+					await play_shotgun_animation("Player")
+				await direct_attack(card, "Player")
+			elif card.card_type == "Attack":
 				attack_cards_used += 1
 			elif card.card_type == "Ammo":
 				ammo_cards_used += 1
@@ -96,7 +104,7 @@ func opponent_turn() -> void:
 
 func direct_attack(attacking_card, attacker) -> void:
 	if attacking_card.card_name == "shotgun-card":
-		if player_ammo > 0 or opponent_ammo > 0:
+		if player_ammo > 0 || opponent_ammo > 0:
 			$"../AudioManager/shotgunFireSFX".play()
 			await play_shotgun_animation(attacker)
 			if attacker == "Player":
@@ -261,6 +269,7 @@ func play_shotgun_animation(attacker) -> void:
 func end_opponent_turn() -> void:
 	$"../Deck".reset_draw()
 	$"../EndTurnButton".disabled = false
+	$"../EndTurnButton".visible = true
 
 func update_ammo_display():
 	for i in range(MAX_AMMO):
@@ -268,6 +277,13 @@ func update_ammo_display():
 			await tween_icon(ammo_icons[i], Color(1, 1, 1, 1), 0.2)
 		else:
 			await tween_icon(ammo_icons[i], Color(0.2, 0.2, 0.2, 1), 0.2)
+
+func update_enemy_ammo_display():
+	for i in range(MAX_AMMO):
+		if i < opponent_ammo:
+			await tween_icon(opp_ammo_icons[i], Color(1, 1, 1, 1), 0.2)
+		else:
+			await tween_icon(opp_ammo_icons[i], Color(0.2, 0.2, 0.2, 1), 0.2)
 
 # Separate function to handle tweening
 func tween_icon(icon, target_color, seconds):
@@ -283,6 +299,7 @@ func add_ammo(amount: int, who):
 		update_ammo_display()
 	elif who == "Opponent":
 		opponent_ammo = min(opponent_ammo + amount, MAX_AMMO)
+		update_enemy_ammo_display()
 
 func destroy_card(card, card_owner) -> void:
 	if card_owner == "Player":
@@ -295,6 +312,8 @@ func destroy_card(card, card_owner) -> void:
 	card.queue_free()
 
 func game_over():
+	game_ended = true
+	
 	$"../MatchUI/HealthBar".texture_under = load("res://assets/images/health-bar-nofill-dead.png")
 	$"../AudioManager/gameOverSFX".play()
 	var deathDarkenerFadeIn = create_tween()
@@ -333,7 +352,9 @@ func game_over():
 	await tween_label_number($"../DeathUI/XP", 0, xp_gained_full, 2.0)
 	await wait(0.5)
 	await tween_label_number($"../DeathUI/XP", xp_gained_full, xp_gained, 1.0)
-	get_tree().paused = true
+	
+	Global.XP += xp_gained
+	Global.save_data()
 
 func win():
 	game_ended = true
@@ -371,6 +392,9 @@ func win():
 	xp_gained /= pow(ROUND_PENALTY_FACTOR, safe_turns)  # Apply round penalty
 	
 	await tween_label_number($"../WinUI/XP", 0, xp_gained, 2.0)
+	
+	Global.XP += xp_gained
+	Global.save_data()
 
 func calculate_xp() -> float:
 	var xp_deduction = max(1.0, float(ammo_cards_used) / 8.0 + float(attack_cards_used) / 4.0)

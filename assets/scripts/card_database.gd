@@ -6,5 +6,6 @@ const CARDS = { # [Damage, Ammo, Ammo Use, Card Type, Name]
 	"ammo-card-3": [0, 3, 0, "Ammo", "3x Ammo"],
 	"ammo-card-4": [0, 4, 0, "Ammo", "4x Ammo"],
 	"ammo-card-5": [0, 5, 0, "Ammo", "5x Ammo"],
-	"shotgun-card": [300, 0, 1, "Attack", "Shotgun"]
+	"shotgun-card": [300, 0, 1, "Attack", "Shotgun"],
+	"pistol-card": [100, 0, 1, "Attack", "Pistol"]
 }

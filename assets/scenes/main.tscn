@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=3 uid="uid://dso701o2spc46"]
+[gd_scene load_steps=37 format=3 uid="uid://dso701o2spc46"]
 
 [ext_resource type="Script" uid="uid://c5r7gqo6m0slu" path="res://assets/scripts/card_manager.gd" id="1_kpi06"]
 [ext_resource type="Texture2D" uid="uid://dg0tqbd48ud5c" path="res://assets/images/health-bar-nofill-happy.png" id="1_t7a27"]
@@ -23,6 +23,7 @@
 [ext_resource type="Texture2D" uid="uid://bi78xvl25ae6n" path="res://assets/images/skull.png" id="14_q5xp6"]
 [ext_resource type="AudioStream" uid="uid://cd47bs2r5wq4e" path="res://assets/audio/sfx/mid-warning.wav" id="15_ftd1h"]
 [ext_resource type="Texture2D" uid="uid://62ca1sqsiwjo" path="res://assets/images/crown.png" id="15_k0jt7"]
+[ext_resource type="Shader" uid="uid://svga81r3eo6n" path="res://assets/shaders/monotone.gdshader" id="15_rk0tg"]
 [ext_resource type="FontFile" uid="uid://baci8h3yftcl3" path="res://assets/fonts/Jersey10-Regular.ttf" id="15_ye0uq"]
 [ext_resource type="AudioStream" uid="uid://de3cfdsvftr5f" path="res://assets/audio/sfx/crit-warning.wav" id="16_xqcey"]
 [ext_resource type="AudioStream" uid="uid://debdvqlgvs21q" path="res://assets/audio/sfx/game-over.wav" id="21_m64nd"]
@@ -34,6 +35,12 @@
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_etxf0"]
 size = Vector2(60, 90)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_pj0si"]
+shader = ExtResource("15_rk0tg")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_rk0tg"]
+shader = ExtResource("15_rk0tg")
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_m64nd"]
 bg_color = Color(0, 0, 0, 0.785)
@@ -164,23 +171,66 @@ alignment = 2
 layout_mode = 2
 texture = ExtResource("14_elvbs")
 stretch_mode = 4
+metadata/_edit_lock_ = true
 
 [node name="Ammo2" type="TextureRect" parent="MatchUI/AmmoContainer"]
 layout_mode = 2
 texture = ExtResource("14_elvbs")
 stretch_mode = 4
+metadata/_edit_lock_ = true
 
 [node name="Ammo3" type="TextureRect" parent="MatchUI/AmmoContainer"]
 layout_mode = 2
 texture = ExtResource("14_elvbs")
 stretch_mode = 4
+metadata/_edit_lock_ = true
 
 [node name="Ammo4" type="TextureRect" parent="MatchUI/AmmoContainer"]
 layout_mode = 2
 texture = ExtResource("14_elvbs")
 stretch_mode = 4
+metadata/_edit_lock_ = true
 
 [node name="Ammo5" type="TextureRect" parent="MatchUI/AmmoContainer"]
+layout_mode = 2
+texture = ExtResource("14_elvbs")
+stretch_mode = 4
+metadata/_edit_lock_ = true
+
+[node name="EnemyAmmoContainer" type="HBoxContainer" parent="MatchUI"]
+texture_filter = 1
+offset_left = 50.0
+offset_top = 50.0
+offset_right = 496.0
+offset_bottom = 77.0
+scale = Vector2(2, 2)
+
+[node name="Ammo1" type="TextureRect" parent="MatchUI/EnemyAmmoContainer"]
+material = SubResource("ShaderMaterial_pj0si")
+layout_mode = 2
+texture = ExtResource("14_elvbs")
+stretch_mode = 4
+
+[node name="Ammo2" type="TextureRect" parent="MatchUI/EnemyAmmoContainer"]
+material = SubResource("ShaderMaterial_rk0tg")
+layout_mode = 2
+texture = ExtResource("14_elvbs")
+stretch_mode = 4
+
+[node name="Ammo3" type="TextureRect" parent="MatchUI/EnemyAmmoContainer"]
+material = SubResource("ShaderMaterial_rk0tg")
+layout_mode = 2
+texture = ExtResource("14_elvbs")
+stretch_mode = 4
+
+[node name="Ammo4" type="TextureRect" parent="MatchUI/EnemyAmmoContainer"]
+material = SubResource("ShaderMaterial_rk0tg")
+layout_mode = 2
+texture = ExtResource("14_elvbs")
+stretch_mode = 4
+
+[node name="Ammo5" type="TextureRect" parent="MatchUI/EnemyAmmoContainer"]
+material = SubResource("ShaderMaterial_rk0tg")
 layout_mode = 2
 texture = ExtResource("14_elvbs")
 stretch_mode = 4
@@ -356,6 +406,7 @@ process_mode = 3
 stream = ExtResource("21_m64nd")
 
 [node name="EndTurnButton" type="TextureButton" parent="."]
+texture_filter = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
