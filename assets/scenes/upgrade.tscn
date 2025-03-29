@@ -1,5 +1,6 @@
-[gd_scene load_steps=9 format=3 uid="uid://cb8y5aa8760v6"]
+[gd_scene load_steps=12 format=3 uid="uid://cb8y5aa8760v6"]
 
+[ext_resource type="Script" uid="uid://bmp4migeva32g" path="res://assets/scripts/upgrade.gd" id="1_c2huy"]
 [ext_resource type="Shader" uid="uid://c0yc6fkg6pysu" path="res://assets/shaders/upgrade_background_shader.gdshader" id="1_l8au2"]
 [ext_resource type="PackedScene" uid="uid://8fw63ta48w5i" path="res://assets/scenes/subscene/upgrade_button.tscn" id="3_c0ido"]
 [ext_resource type="Script" uid="uid://ce1aty5hu6jcy" path="res://assets/scripts/upgrade_tree_camera.gd" id="3_l6dx6"]
@@ -7,6 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://cd8n55om5f2cv" path="res://assets/images/ammo-big-cropped.png" id="5_bl7x3"]
 [ext_resource type="Script" uid="uid://b4iy2vsaiyita" path="res://assets/scripts/xp_label.gd" id="6_8jm25"]
 [ext_resource type="FontFile" uid="uid://injx0ycimrcg" path="res://assets/fonts/Jersey25-Regular.ttf" id="7_kdpw0"]
+[ext_resource type="Script" uid="uid://c05bj44gtt1f4" path="res://assets/scripts/back_to_menu.gd" id="8_kdpw0"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_igga6"]
 shader = ExtResource("1_l8au2")
@@ -15,7 +17,15 @@ shader_parameter/line_color = Vector4(0.05, 0.05, 0.05, 1)
 shader_parameter/grid_size = 50.0
 shader_parameter/line_thickness = 0.02
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_c2huy"]
+bg_color = Color(0.0295066, 0.0295066, 0.0295065, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
 [node name="Main" type="Node"]
+script = ExtResource("1_c2huy")
 
 [node name="Background" type="ColorRect" parent="."]
 material = SubResource("ShaderMaterial_igga6")
@@ -89,3 +99,23 @@ theme_override_fonts/font = ExtResource("7_kdpw0")
 theme_override_font_sizes/font_size = 70
 text = "0 XP"
 script = ExtResource("6_8jm25")
+
+[node name="Back" type="Button" parent="UpgradeTreeCamera"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -75.0
+offset_top = 477.0
+offset_right = 75.0
+offset_bottom = 506.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_fonts/font = ExtResource("7_kdpw0")
+theme_override_font_sizes/font_size = 28
+theme_override_styles/normal = SubResource("StyleBoxFlat_c2huy")
+text = "Back"
+script = ExtResource("8_kdpw0")
+
+[connection signal="pressed" from="UpgradeTreeCamera/Back" to="UpgradeTreeCamera/Back" method="_on_pressed"]

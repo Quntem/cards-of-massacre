@@ -12,16 +12,18 @@ config_version=5
 
 config/name="Cards Of Massacre"
 config/description="Shoot someone to death or obtain 9 bullets and massacre your friends (or the bot, who's 100% volunteered) with cute, little cards. What would possibly go wrong?"
-config/version="v0"
+config/version="v-1"
 run/main_scene="uid://b4ljq4dxjxty0"
 config/features=PackedStringArray("4.4", "Forward Plus")
 boot_splash/show_image=false
-config/icon="uid://cko0y6jt3nyy4"
+config/icon="uid://dnqxdshwnsrho"
 
 [autoload]
 
 Global="*res://assets/scripts/global.gd"
 Autoload="*res://assets/scripts/autoload.gd"
+AudioManager="*res://assets/scripts/audio_manager.gd"
+DiscordRPCLoader="*res://addons/discord-rpc-gd/nodes/discord_autoload.gd"
 
 [display]
 
@@ -33,12 +35,14 @@ window/vsync/vsync_mode=0
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/wakatime/plugin.cfg")
+enabled=PackedStringArray("res://addons/discord-rpc-gd/plugin.cfg", "res://addons/wakatime/plugin.cfg")
 
 [rendering]
 
 textures/canvas_textures/default_texture_filter=0
+anti_aliasing/quality/msaa_2d=2
 environment/defaults/default_clear_color=Color(0, 0, 0, 1)
+2d/snap/snap_2d_transforms_to_pixel=true
 
 [shader_globals]
 

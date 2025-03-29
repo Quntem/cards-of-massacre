@@ -6,3 +6,4 @@ var card_type
 var damage
 var ammo
 var card_name
+var ammo_req

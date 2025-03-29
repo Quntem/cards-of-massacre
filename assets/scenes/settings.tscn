@@ -1,0 +1,107 @@
+[gd_scene load_steps=11 format=3 uid="uid://kewao6t3v14d"]
+
+[ext_resource type="Script" uid="uid://d3hptqtvnyesk" path="res://assets/scripts/settings.gd" id="1_17tup"]
+[ext_resource type="AudioStream" uid="uid://b7pkmt5yv0i55" path="res://assets/audio/sfx/volume-adjust.wav" id="2_48ty2"]
+[ext_resource type="Texture2D" uid="uid://c05i21wgs1tkk" path="res://assets/images/grabber.png" id="3_fdwte"]
+[ext_resource type="FontFile" uid="uid://injx0ycimrcg" path="res://assets/fonts/Jersey25-Regular.ttf" id="4_k5a6f"]
+[ext_resource type="Script" uid="uid://c05bj44gtt1f4" path="res://assets/scripts/back_to_menu.gd" id="4_s7awf"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_s7awf"]
+bg_color = Color(0.0295066, 0.0295066, 0.0295065, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_k5a6f"]
+color = Color(0.941176, 0.941176, 0.941176, 1)
+grow_begin = -13.0
+grow_end = -13.0
+thickness = 16
+
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_fdwte"]
+color = Color(0.756863, 0.756863, 0.756863, 1)
+grow_begin = -13.0
+grow_end = 0.0
+thickness = 16
+
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_s7awf"]
+color = Color(0.756863, 0.756863, 0.756863, 1)
+grow_begin = -13.0
+grow_end = 0.0
+thickness = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_k5a6f"]
+bg_color = Color(0, 0, 0, 0)
+
+[node name="Main" type="Node"]
+script = ExtResource("1_17tup")
+
+[node name="AudioManager" type="Node" parent="."]
+
+[node name="volumeAdjustSFX" type="AudioStreamPlayer" parent="AudioManager"]
+stream = ExtResource("2_48ty2")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 100
+theme_override_constants/margin_top = 100
+theme_override_constants/margin_right = 100
+theme_override_constants/margin_bottom = 100
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Back" type="Button" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_k5a6f")
+theme_override_font_sizes/font_size = 28
+theme_override_styles/normal = SubResource("StyleBoxFlat_s7awf")
+text = "Back"
+script = ExtResource("4_s7awf")
+
+[node name="Volume" type="HSlider" parent="MarginContainer/VBoxContainer"]
+texture_filter = 1
+layout_mode = 2
+theme_override_icons/grabber = ExtResource("3_fdwte")
+theme_override_icons/grabber_highlight = ExtResource("3_fdwte")
+theme_override_styles/slider = SubResource("StyleBoxLine_k5a6f")
+theme_override_styles/grabber_area = SubResource("StyleBoxLine_fdwte")
+theme_override_styles/grabber_area_highlight = SubResource("StyleBoxLine_s7awf")
+max_value = 35.0
+step = 0.029
+
+[node name="VolumeLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_k5a6f")
+theme_override_font_sizes/font_size = 40
+text = "100%"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AbsoluteDBCheckbox" type="CheckBox" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/h_separation = 16
+theme_override_fonts/font = ExtResource("4_k5a6f")
+theme_override_font_sizes/font_size = 28
+theme_override_styles/focus = SubResource("StyleBoxFlat_k5a6f")
+text = "Use Absolute DB"
+
+[node name="VeryPreciseCheckbox" type="CheckBox" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/h_separation = 16
+theme_override_fonts/font = ExtResource("4_k5a6f")
+theme_override_font_sizes/font_size = 28
+theme_override_styles/focus = SubResource("StyleBoxFlat_k5a6f")
+text = "Very Precise"
+
+[connection signal="pressed" from="MarginContainer/VBoxContainer/Back" to="MarginContainer/VBoxContainer/Back" method="_on_pressed"]
+[connection signal="drag_ended" from="MarginContainer/VBoxContainer/Volume" to="." method="_on_volume_drag_ended"]
+[connection signal="value_changed" from="MarginContainer/VBoxContainer/Volume" to="." method="_on_volume_value_changed"]
+[connection signal="toggled" from="MarginContainer/VBoxContainer/AbsoluteDBCheckbox" to="." method="_on_absolute_db_checkbox_toggled"]
+[connection signal="toggled" from="MarginContainer/VBoxContainer/VeryPreciseCheckbox" to="." method="_on_very_precise_checkbox_toggled"]

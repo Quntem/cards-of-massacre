@@ -7,6 +7,7 @@ const STARTER_HAND_SIZE = 4
 # Predefined set of cards to generate
 const INITIAL_DECK = [
 	"shotgun-card", "shotgun-card", "shotgun-card", "shotgun-card", "shotgun-card", "shotgun-card",
+	"rifle-card", "rifle-card", "rifle-card", "rifle-card", "rifle-card", "rifle-card",
 	"pistol-card", "pistol-card", "pistol-card", "pistol-card", "pistol-card", "pistol-card",
 	"ammo-card-1", "ammo-card-1", "ammo-card-1", "ammo-card-1", "ammo-card-1", "ammo-card-1",
 	"ammo-card-2", "ammo-card-2", "ammo-card-2", "ammo-card-2", "ammo-card-2", "ammo-card-2",

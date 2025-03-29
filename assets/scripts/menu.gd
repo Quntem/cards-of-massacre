@@ -1,4 +1,4 @@
 extends Node
 
 func _ready() -> void:
-	Global.load_data()
+	AudioManager.update_volume()
