@@ -11,11 +11,11 @@ func _ready() -> void:
 	DiscordRPC.start_timestamp = int(Time.get_unix_time_from_system())
 	DiscordRPC.refresh()
 
+func _process(delta: float) -> void:
+	set_discord_details()
+
 func set_discord_details() -> void:
-	if game:
-		DiscordRPC.details = "Game"
-	else:
-		DiscordRPC.details = "Home"
+	DiscordRPC.details = details
 	DiscordRPC.refresh()
 
 func update_discord_health():

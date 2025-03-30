@@ -1,7 +1,8 @@
-[gd_scene load_steps=11 format=3 uid="uid://kewao6t3v14d"]
+[gd_scene load_steps=12 format=3 uid="uid://kewao6t3v14d"]
 
 [ext_resource type="Script" uid="uid://d3hptqtvnyesk" path="res://assets/scripts/settings.gd" id="1_17tup"]
 [ext_resource type="AudioStream" uid="uid://b7pkmt5yv0i55" path="res://assets/audio/sfx/volume-adjust.wav" id="2_48ty2"]
+[ext_resource type="Script" uid="uid://c6hjrw2jra580" path="res://assets/scripts/discord_manager.gd" id="2_dvflm"]
 [ext_resource type="Texture2D" uid="uid://c05i21wgs1tkk" path="res://assets/images/grabber.png" id="3_fdwte"]
 [ext_resource type="FontFile" uid="uid://injx0ycimrcg" path="res://assets/fonts/Jersey25-Regular.ttf" id="4_k5a6f"]
 [ext_resource type="Script" uid="uid://c05bj44gtt1f4" path="res://assets/scripts/back_to_menu.gd" id="4_s7awf"]
@@ -36,6 +37,10 @@ bg_color = Color(0, 0, 0, 0)
 
 [node name="Main" type="Node"]
 script = ExtResource("1_17tup")
+
+[node name="DiscordManager" type="Node" parent="."]
+script = ExtResource("2_dvflm")
+details = "Settings"
 
 [node name="AudioManager" type="Node" parent="."]
 
