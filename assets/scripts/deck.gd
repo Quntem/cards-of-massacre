@@ -34,6 +34,9 @@ func replenish_deck():
 	player_deck.shuffle()
 
 func draw_card():
+	DiscordRPC.state = "Drawing Card"
+	DiscordRPC.refresh()
+	
 	if drawn_card_this_turn:
 		return
 	
@@ -60,13 +63,18 @@ func draw_card():
 	new_card.card_type = card_database_reference.CARDS[card_drawn_name][3]
 	new_card.card_name = card_database_reference.CARDS[card_drawn_name][4]
 	
+	$"../BattleManager".check_for_usuable_cards()
+	
 	$"../CardManager".add_child(new_card)
 	new_card.name = "Card"
 	new_card.scale = Vector2(1.5, 1.5)
 	$"../PlayerHand".add_card_to_hand(new_card, CARD_DRAW_SPEED)
 	new_card.get_node("AnimationPlayer").play("card_flip")
 	
-	$"../BattleManager".check_for_usuable_cards()
+	await get_tree().create_timer(0.4).timeout
+	
+	DiscordRPC.state = "Idle"
+	DiscordRPC.refresh()
 
 func reset_draw():
 	drawn_card_this_turn = false

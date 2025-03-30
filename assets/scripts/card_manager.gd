@@ -25,10 +25,14 @@ func _process(_delta: float) -> void:
 
 func start_drag(card):
 	if (card.ammo_req <= $"../BattleManager".player_ammo) or (card.ammo_req == 0):
+		DiscordRPC.state = "Dragging Card"
+		DiscordRPC.refresh()
 		card_being_dragged = card
 		card.scale = Vector2(1.5, 1.5)
 
 func finish_drag():
+	DiscordRPC.state = "Idle"
+	DiscordRPC.refresh()
 	var card_slot_found = check_card_slot_via_raycast()
 	if card_slot_found and not card_slot_found.card_in_slot:
 		card_being_dragged.scale = Vector2(1.4, 1.4)
@@ -41,10 +45,16 @@ func finish_drag():
 		$"../BattleManager".player_cards_on_battlefield.append(card_being_dragged)
 		card_being_dragged.get_node("CardOutline").modulate = Color(1, 1, 1, 0)
 		$"../AudioManager/cardPlaceSFX".play()
+		DiscordRPC.state = "Placed Card"
+		DiscordRPC.refresh()
 	else:
 		player_hand_reference.add_card_to_hand(card_being_dragged, DEFAULT_CARD_MOVE_SPEED)
 	card_being_dragged = null
 	center_cards_in_hand()
+	
+	await get_tree().create_timer(1.0).timeout
+	DiscordRPC.state = "Idle"
+	DiscordRPC.refresh()
 
 func connect_card_signals(card):
 	card.connect("hovered", Callable(self, "on_hovered_over_card"))

@@ -69,6 +69,7 @@ expand_mode = 1
 
 [node name="DiscordManager" type="Node" parent="."]
 script = ExtResource("5_pw4oi")
+details = "Home"
 
 [node name="AudioManager" type="Node" parent="."]
 

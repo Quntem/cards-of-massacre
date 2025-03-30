@@ -21,12 +21,16 @@ func _on_window_resized():
 func update_hand_positions(speed):
 	var screen_width = get_viewport_rect().size.x  # Dynamically get the screen width
 	var center_screen_x = screen_width / 2.0  # Ensure floating-point division
-	var total_width = enemy_hand.size() * CARD_WIDTH
 	
-	# Calculate the starting X position to center the hand
-	var start_x = center_screen_x - (total_width / 2.0) + (CARD_WIDTH / 2.0)  # Ensure floating-point division
-
-	for i in range(enemy_hand.size()):
+	var card_count = enemy_hand.size()
+	if card_count == 0:
+		return
+	
+	# Use card_count - 1 so that a single card is centered exactly
+	var total_width = (card_count - 1) * CARD_WIDTH
+	var start_x = center_screen_x - (total_width / 2.0)
+	
+	for i in range(card_count):
 		var x_offset = start_x + (i * CARD_WIDTH)
 		var new_position = Vector2(x_offset, HAND_Y_POSITION)
 		var card = enemy_hand[i]

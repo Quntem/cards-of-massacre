@@ -1,8 +1,9 @@
-[gd_scene load_steps=46 format=3 uid="uid://dso701o2spc46"]
+[gd_scene load_steps=47 format=3 uid="uid://dso701o2spc46"]
 
 [ext_resource type="Script" uid="uid://c5r7gqo6m0slu" path="res://assets/scripts/card_manager.gd" id="1_kpi06"]
 [ext_resource type="Script" uid="uid://dxtsrpaydrsop" path="res://assets/scripts/main.gd" id="1_pj0si"]
 [ext_resource type="Texture2D" uid="uid://dg0tqbd48ud5c" path="res://assets/images/health-bar-nofill-happy.png" id="1_t7a27"]
+[ext_resource type="Script" uid="uid://c6hjrw2jra580" path="res://assets/scripts/discord_manager.gd" id="2_14b3a"]
 [ext_resource type="Shader" uid="uid://cqejuv72sasfv" path="res://assets/shaders/red_vignette.gdshader" id="2_ke4cb"]
 [ext_resource type="PackedScene" uid="uid://du7fna6m7tgsf" path="res://assets/scenes/subscene/card_slot.tscn" id="3_dfgan"]
 [ext_resource type="Texture2D" uid="uid://bl11mrc5wfgw8" path="res://assets/images/health-bar-filled.png" id="3_ftd1h"]
@@ -73,6 +74,16 @@ shader_parameter/speed = 3.0
 
 [node name="Main" type="Node"]
 script = ExtResource("1_pj0si")
+
+[node name="DiscordManager" type="Node" parent="."]
+script = ExtResource("2_14b3a")
+details = "Game"
+game = true
+
+[node name="Timer" type="Timer" parent="DiscordManager"]
+one_shot = true
+autostart = true
+ignore_time_scale = true
 
 [node name="CanvasLayer2" type="CanvasLayer" parent="."]
 layer = 2

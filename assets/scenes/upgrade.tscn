@@ -1,9 +1,10 @@
-[gd_scene load_steps=12 format=3 uid="uid://cb8y5aa8760v6"]
+[gd_scene load_steps=13 format=3 uid="uid://cb8y5aa8760v6"]
 
 [ext_resource type="Script" uid="uid://bmp4migeva32g" path="res://assets/scripts/upgrade.gd" id="1_c2huy"]
 [ext_resource type="Shader" uid="uid://c0yc6fkg6pysu" path="res://assets/shaders/upgrade_background_shader.gdshader" id="1_l8au2"]
 [ext_resource type="PackedScene" uid="uid://8fw63ta48w5i" path="res://assets/scenes/subscene/upgrade_button.tscn" id="3_c0ido"]
 [ext_resource type="Script" uid="uid://ce1aty5hu6jcy" path="res://assets/scripts/upgrade_tree_camera.gd" id="3_l6dx6"]
+[ext_resource type="Script" uid="uid://c6hjrw2jra580" path="res://assets/scripts/discord_manager.gd" id="3_mwdpe"]
 [ext_resource type="Texture2D" uid="uid://d4g4np3cx73h3" path="res://assets/images/heart.png" id="4_tvbge"]
 [ext_resource type="Texture2D" uid="uid://cd8n55om5f2cv" path="res://assets/images/ammo-big-cropped.png" id="5_bl7x3"]
 [ext_resource type="Script" uid="uid://b4iy2vsaiyita" path="res://assets/scripts/xp_label.gd" id="6_8jm25"]
@@ -41,6 +42,10 @@ offset_bottom = 540.0
 grow_horizontal = 2
 grow_vertical = 2
 metadata/_edit_lock_ = true
+
+[node name="DiscordManager" type="Node" parent="."]
+script = ExtResource("3_mwdpe")
+details = "Upgrades"
 
 [node name="UpgradeTree" type="Node" parent="."]
 

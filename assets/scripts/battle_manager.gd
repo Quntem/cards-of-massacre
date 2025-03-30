@@ -58,6 +58,8 @@ func _ready() -> void:
 	
 	update_ammo_display()
 	update_enemy_ammo_display()
+	
+	$"../DiscordManager".update_discord_health()
 
 func _on_end_turn_button_pressed() -> void:
 	$"../EndTurnButton".disabled = true
@@ -74,6 +76,8 @@ func execute_player_actions() -> void:
 	if game_ended: return
 	
 	if player_cards_on_battlefield:
+		DiscordRPC.state = "Ended Turn"
+		DiscordRPC.refresh()
 		for card in player_cards_on_battlefield.duplicate():
 			if card.card_type == "Attack" && player_ammo > card.ammo_req:
 				await direct_attack(card, "Player")
@@ -84,10 +88,15 @@ func execute_player_actions() -> void:
 				add_ammo(card.ammo, "Player")
 				destroy_card(card, "Player")
 	else:
+		DiscordRPC.state = "Skipped Turn"
+		DiscordRPC.refresh()
 		skipped_turns += 1
 
 func opponent_turn() -> void:
 	if game_ended: return
+	
+	DiscordRPC.state = "Opponent's Turn"
+	DiscordRPC.refresh()
 	
 	await wait(1.0)
 	if turns > 1 and opponent_deck.opponent_deck:
@@ -101,6 +110,8 @@ func opponent_turn() -> void:
 
 func direct_attack(attacking_card, attacker) -> void:
 	if attacking_card.card_type == "Attack":
+		DiscordRPC.state = attacker + " attacks!"
+		DiscordRPC.refresh()
 		if player_ammo > 0 || opponent_ammo > 0:
 			if attacking_card.card_name == "Shotgun":
 				$"../AudioManager/shotgunFireSFX".play()
@@ -131,6 +142,7 @@ func update_health(target: String, damage: int):
 		update_health_bar($"../MatchUI/HealthBar", player_health, target)
 		if player_health == 0:
 			game_over()
+		$"../DiscordManager".update_discord_health()
 	else:
 		opponent_health = max(0, opponent_health - damage)
 		update_health_bar($"../MatchUI/EnemyHealthBar", opponent_health, target)
@@ -190,11 +202,18 @@ func try_play_card() -> void:
 	tween.tween_property(best_card, "scale", SMALL_CARD_SCALE, CARD_MOVE_SPEED)
 	best_card.get_node("AnimationPlayer").play("card_flip")
 	
+	# Remove card from enemy's hand
 	opponent_deck.remove_card_from_hand(best_card)
+	
+	# Wait for tween to finish before updating hand positions
+	await tween.finished  
+	$"../EnemyHand".update_hand_positions(CARD_MOVE_SPEED)  # Now the hand updates correctly
+	
 	best_card.card_slot_card_is_in = slot
 	opponent_cards_on_battlefield.append(best_card)
 	$"../AudioManager/cardPlaceSFX".play()
 	await wait(1.0)
+
 
 func check_for_usuable_cards():
 	for card in $"../PlayerHand".player_hand:
@@ -284,6 +303,9 @@ func end_opponent_turn() -> void:
 	$"../Deck".reset_draw()
 	$"../EndTurnButton".disabled = false
 	$"../EndTurnButton".visible = true
+	
+	DiscordRPC.state = "Idle"
+	DiscordRPC.refresh()
 
 func update_ammo_display():
 	
@@ -380,6 +402,8 @@ func game_over():
 
 func win():
 	game_ended = true
+	
+	DiscordRPC.state = "Won Game! 👑"
 	
 	$"../AudioManager/gameOverSFX".play()
 	var winDarkenerFadeIn = create_tween()
