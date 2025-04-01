@@ -20,16 +20,17 @@ config/icon="uid://dnqxdshwnsrho"
 
 [autoload]
 
-Global="*res://assets/scripts/global.gd"
-Autoload="*res://assets/scripts/autoload.gd"
-AudioManager="*res://assets/scripts/audio_manager.gd"
+Global="*res://assets/scripts/global/global.gd"
+Autoload="*res://assets/scripts/global/autoload.gd"
+AudioManager="*res://assets/scripts/global/audio_manager.gd"
 DiscordRPCLoader="*res://addons/discord-rpc-gd/nodes/discord_autoload.gd"
+AudioPlayer="*res://assets/scripts/global/audio_player.tscn"
 
 [display]
 
 window/size/viewport_width=1920
 window/size/viewport_height=1080
-window/size/mode=2
+window/size/mode=3
 window/stretch/mode="canvas_items"
 window/vsync/vsync_mode=0
 
@@ -40,6 +41,8 @@ enabled=PackedStringArray("res://addons/discord-rpc-gd/plugin.cfg", "res://addon
 [rendering]
 
 textures/canvas_textures/default_texture_filter=0
+textures/vram_compression/import_s3tc_bptc=true
+textures/vram_compression/import_etc2_astc=true
 anti_aliasing/quality/msaa_2d=2
 environment/defaults/default_clear_color=Color(0, 0, 0, 1)
 2d/snap/snap_2d_transforms_to_pixel=true

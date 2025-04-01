@@ -1,11 +1,81 @@
-[gd_scene load_steps=12 format=3 uid="uid://kewao6t3v14d"]
+[gd_scene load_steps=23 format=3 uid="uid://kewao6t3v14d"]
 
 [ext_resource type="Script" uid="uid://d3hptqtvnyesk" path="res://assets/scripts/settings.gd" id="1_17tup"]
 [ext_resource type="AudioStream" uid="uid://b7pkmt5yv0i55" path="res://assets/audio/sfx/volume-adjust.wav" id="2_48ty2"]
-[ext_resource type="Script" uid="uid://c6hjrw2jra580" path="res://assets/scripts/discord_manager.gd" id="2_dvflm"]
+[ext_resource type="Script" uid="uid://c6hjrw2jra580" path="res://assets/scripts/global/discord_manager.gd" id="2_dvflm"]
+[ext_resource type="Shader" uid="uid://ducib4xo3cx20" path="res://assets/shaders/circle_transition.gdshader" id="2_pp2u4"]
 [ext_resource type="Texture2D" uid="uid://c05i21wgs1tkk" path="res://assets/images/grabber.png" id="3_fdwte"]
 [ext_resource type="FontFile" uid="uid://injx0ycimrcg" path="res://assets/fonts/Jersey25-Regular.ttf" id="4_k5a6f"]
 [ext_resource type="Script" uid="uid://c05bj44gtt1f4" path="res://assets/scripts/back_to_menu.gd" id="4_s7awf"]
+[ext_resource type="Shader" uid="uid://dktmwb2avc2ag" path="res://assets/shaders/vignette.gdshader" id="7_dyhpl"]
+[ext_resource type="Shader" uid="uid://cnapc23v580g4" path="res://assets/shaders/tv-static.gdshader" id="8_q5j1l"]
+[ext_resource type="Shader" uid="uid://hrh01cyiu7i0" path="res://assets/shaders/screen_shake.gdshader" id="9_fjali"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_1jjir"]
+shader = ExtResource("2_pp2u4")
+shader_parameter/circle_size = 1.05
+shader_parameter/screen_width = 1920.0
+shader_parameter/screen_height = 1080.0
+
+[sub_resource type="Animation" id="Animation_1jjir"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:material")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [SubResource("ShaderMaterial_1jjir")]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:material:shader_parameter/circle_size")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.05]
+}
+
+[sub_resource type="Animation" id="Animation_ji2u7"]
+resource_name = "circle_transition"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:material")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [SubResource("ShaderMaterial_1jjir")]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:material:shader_parameter/circle_size")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.00833333, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [1.05, 0.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_iegxf"]
+_data = {
+&"RESET": SubResource("Animation_1jjir"),
+&"circle_transition": SubResource("Animation_ji2u7")
+}
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_s7awf"]
 bg_color = Color(0.0295066, 0.0295066, 0.0295065, 1)
@@ -35,8 +105,39 @@ thickness = 16
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_k5a6f"]
 bg_color = Color(0, 0, 0, 0)
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_q5j1l"]
+shader = ExtResource("7_dyhpl")
+shader_parameter/alpha = 1.0
+shader_parameter/inner_radius = 0.0
+shader_parameter/outer_radius = 1.5
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_fjali"]
+shader = ExtResource("8_q5j1l")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_pp2u4"]
+shader = ExtResource("9_fjali")
+shader_parameter/ShakeStrength = 0.05
+shader_parameter/FactorA = Vector2(100, 100)
+shader_parameter/FactorB = Vector2(1, 1)
+shader_parameter/magnitude = Vector2(0.01, 0.01)
+
 [node name="Main" type="Node"]
 script = ExtResource("1_17tup")
+
+[node name="CircleTransition" type="ColorRect" parent="."]
+z_index = 8
+material = SubResource("ShaderMaterial_1jjir")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="CircleTransitionPlayer" type="AnimationPlayer" parent="CircleTransition"]
+libraries = {
+&"": SubResource("AnimationLibrary_iegxf")
+}
 
 [node name="DiscordManager" type="Node" parent="."]
 script = ExtResource("2_dvflm")
@@ -62,13 +163,14 @@ theme_override_constants/margin_bottom = 100
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="Back" type="Button" parent="MarginContainer/VBoxContainer"]
+[node name="Back" type="Button" parent="MarginContainer/VBoxContainer" node_paths=PackedStringArray("animation_player")]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("4_k5a6f")
 theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("StyleBoxFlat_s7awf")
 text = "Back"
 script = ExtResource("4_s7awf")
+animation_player = NodePath("../../../CircleTransition/CircleTransitionPlayer")
 
 [node name="Volume" type="HSlider" parent="MarginContainer/VBoxContainer"]
 texture_filter = 1
@@ -104,6 +206,35 @@ theme_override_fonts/font = ExtResource("4_k5a6f")
 theme_override_font_sizes/font_size = 28
 theme_override_styles/focus = SubResource("StyleBoxFlat_k5a6f")
 text = "Very Precise"
+
+[node name="Vignette" type="ColorRect" parent="."]
+z_index = 8
+material = SubResource("ShaderMaterial_q5j1l")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Static" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_fjali")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Shake" type="ColorRect" parent="."]
+z_index = 9
+material = SubResource("ShaderMaterial_pp2u4")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
 [connection signal="pressed" from="MarginContainer/VBoxContainer/Back" to="MarginContainer/VBoxContainer/Back" method="_on_pressed"]
 [connection signal="drag_ended" from="MarginContainer/VBoxContainer/Volume" to="." method="_on_volume_drag_ended"]

@@ -10,4 +10,4 @@ func _on_button_up() -> void:
 	circle_transition_player.play("circle_transition")
 	await circle_transition_player.animation_finished
 	await get_tree().create_timer(2).timeout
-	get_tree().change_scene_to_file("res://assets/scenes/level_select.tscn")
+	get_tree().change_scene_to_file("res://assets/scenes/main.tscn")

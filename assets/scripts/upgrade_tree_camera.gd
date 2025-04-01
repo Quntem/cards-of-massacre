@@ -11,6 +11,8 @@ var space_hold_duration: float = 0.75  # Duration to hold the space bar in secon
 
 # Reference to ColorRect node
 @onready var background = $"../Background"
+@onready var vignette: ColorRect = $"../Vignette"
+@onready var staticshader: ColorRect = $"../Static"
 
 func _ready():
 	# Center the camera on the screen's center position
@@ -34,6 +36,8 @@ func _input(event):
 func _process(_delta):
 	global_position = global_position.lerp(target_position, 0.001)
 	background.position = global_position - (background.size / 2)
+	vignette.position = global_position - (background.size / 2)
+	staticshader.position = global_position - (background.size / 2)
 	
 	if Input.is_key_pressed(KEY_SPACE):
 		space_held_time += _delta

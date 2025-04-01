@@ -5,7 +5,7 @@ const CARD_DRAW_SPEED = 0.2
 const STARTER_HAND_SIZE = 4
 
 # Predefined set of cards to generate
-const INITIAL_DECK = [
+@export var INITIAL_DECK: Array = [
 	"shotgun-card", "shotgun-card", "shotgun-card", "shotgun-card", "shotgun-card", "shotgun-card",
 	"rifle-card", "rifle-card", "rifle-card", "rifle-card", "rifle-card", "rifle-card",
 	"pistol-card", "pistol-card", "pistol-card", "pistol-card", "pistol-card", "pistol-card",

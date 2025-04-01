@@ -8,6 +8,9 @@ extends Node
 func _ready() -> void:
 	AudioManager.update_volume()
 	
+	$CircleTransition.material.set_shader_parameter("screen_width", get_viewport().size.x)
+	$CircleTransition.material.set_shader_parameter("screen_height", get_viewport().size.y)
+	
 	absolute_db_checkbox.button_pressed = Global.absolute_db
 	very_precise_checkbox.button_pressed = Global.very_precise
 	volume.value = -Global.volume
@@ -15,6 +18,9 @@ func _ready() -> void:
 	if absolute_db_checkbox.button_pressed == false:
 		very_precise_checkbox.disabled = true
 		very_precise_checkbox.visible = false
+	
+	$CircleTransition.material.set_shader_parameter("circle_size", 0)
+	$CircleTransition/CircleTransitionPlayer.play_backwards("circle_transition")
 
 func _on_volume_value_changed(value: float) -> void:
 	AudioServer.set_bus_volume_db(0, -value)

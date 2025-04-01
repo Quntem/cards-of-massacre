@@ -2,6 +2,7 @@ extends Node
 
 @export var details: String
 @export var game: bool
+@onready var timer = Timer.new()
 
 func _ready() -> void:
 	set_discord_details()
